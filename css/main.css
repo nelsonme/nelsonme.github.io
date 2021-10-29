@@ -139,3 +139,13 @@ h4 {
 	font-weight: 400;
 	text-decoration: none;
 }
+
+/* images */
+.example-img {
+	float: left;
+	width: 14em;
+	max-width: 50%;
+	border-radius: 5px;
+	margin: 0 1.5em 1.5em 0;
+	border: thin solid #ccc;
+}
