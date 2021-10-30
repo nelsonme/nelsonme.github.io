@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Geolocation API demo</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        #logTextArea {
+            width: 400px;
+            height: 300px;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea id="logTextArea"></textarea>
+    <div>
+        <button id="getLoc" type="button">Get Location</button>
+    </div>
+
+    <script>
+        // log coordinates when button is clicked
+        var clickCount = 0
+        const userLog = document.getElementById('logTextArea')
+        const userBtn = document.getElementById('getLoc')
+
+        function success(pos) {
+            console.log(pos)
+            clickCount
+            var crd = pos.coords
+            userLog.value += `${clickCount}: Lat/Lng: ${crd.latitude}, ${crd.longitude}\n`
+            userLog.value += `Uncertainty ${crd.accuracy} meters.\n\n`
+            userLog.scrollTop = userLog.scrollHeight // always scroll to bottom
+        }
+
+        function error(err) {
+            userLog.value += `${clickCount}: ERROR(${err.code}): ${err.message}\n`
+        }
+
+        userBtn.onclick = function () {
+            clickCount++
+            navigator.geolocation.getCurrentPosition(success, error, {timeout: 5000})
+        }
+
+    </script>
+</body>
+
+</html>
