@@ -11,6 +11,10 @@
             width: 400px;
             height: 300px;
         }
+        button {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
     </style>
 </head>
 
@@ -19,19 +23,22 @@
     <div>
         <button id="getLoc" type="button">Get Location</button>
     </div>
+    <div id="mapLink"> </div>
 
     <script>
         // log coordinates when button is clicked
         var clickCount = 0
         const userLog = document.getElementById('logTextArea')
         const userBtn = document.getElementById('getLoc')
+        const mapLink = document.getElementById('mapLink')
 
         function success(pos) {
-            console.log(pos)
-            clickCount
             var crd = pos.coords
-            userLog.value += `${clickCount}: Lat/Lng: ${crd.latitude}, ${crd.longitude}\n`
-            userLog.value += `Uncertainty ${crd.accuracy} meters.\n\n`
+            userLog.value += `${clickCount}: Lat/Lng: ${crd.latitude.toFixed(6)}/${crd.longitude.toFixed(6)}\n`
+            userLog.value += `Uncertainty ${crd.accuracy.toFixed(0)} meters.\n\n`
+            mapLink.innerHTML = `<a target="_blank" 
+                href="https://openstreetmap.org/#map=17/{${crd.latitude}/${crd.longitude}"> 
+                view current position in a new tab</a>`
             userLog.scrollTop = userLog.scrollHeight // always scroll to bottom
         }
 
@@ -41,7 +48,12 @@
 
         userBtn.onclick = function () {
             clickCount++
-            navigator.geolocation.getCurrentPosition(success, error, {timeout: 5000})
+            var options = {
+                enableHighAccuracy: true,
+                timeout: 5000,
+                maximumAge: 500
+            };
+            navigator.geolocation.getCurrentPosition(success, error, options)
         }
 
     </script>
