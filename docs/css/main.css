@@ -121,9 +121,28 @@ hr {
 	background:#e8efe8;
 }
 
-@media only screen and (hover: none) {
-	.logo, .tagline {
+@media only screen and (max-width: 600px) {
+
+	.logo {
+		width: 0;
+	}
+	.tagline {
 		visibility: hidden;
+		font-size: 0;
+		padding: 0;
+	}
+
+	.nav {
+		font-size: 1em;
+		padding-bottom: 0;
+	}
+
+	body {
+		font-size: 0.8em;
+	}
+
+	h1, h2, h3 { 
+		font-size: 1em;
 	}
 
 }
