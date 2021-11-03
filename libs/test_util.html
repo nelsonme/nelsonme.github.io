@@ -1,11 +1,16 @@
 <!DOCTYPE HTML>
 <html lang="en-US">
 
+<html>
+
 <head>
-	<meta charset="UTF-8">
+	<title>util.js: testing </title>
+	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<script src="util.js"></script>
-	<title>util: testing </title>
+	<link rel="stylesheet" href="../docs/css/main.css" />
+	<script src="../libs/rand.js"></script>
+	<script src="../libs/util.js"></script>
+
 	<style>
 		.pass:before {
 			content: 'PASS: ';
@@ -19,42 +24,62 @@
 			font-weight: bold;
 
 		}
+
+		h1,
+		h2,
+		h3 {
+			font-size: 1.2em;
+		}
+
+		code {
+			font-size: 1.1em;
+		}
 	</style>
 </head>
 
 <body>
-	<h1>util.js</h1>
+	<div class="container">
+	<h1>util.js - unit testing</h1>
+	<pre><code id="test_setup">// Setup
+var tstData = [0, -1, 1, 2, -2];
+var data = [0, 0.3, 1.0, 1.2, 1.5, 2.1, 2.7, 3.5, 4.1];
+var bins = [1, 2, 3];
+var binWidth = 1; // bin width
+var {counts, underflow, overflow} = hist(data, bins);
+</code></pre>
 	<h2>testing...</h2>
-	<ul id="output"></ul>
+	<div id="output"></div>
 	<script>
-
 		const output = document.getElementById('output');
-		function assert(outcome, description) {
-			var li = document.createElement('li');
-			li.className = outcome ? 'pass' : 'fail';
-			li.appendChild(document.createTextNode(description));
-			output.appendChild(li);
+		function assert(testString, description) {
+			var outcome = eval(testString)
+			var p = document.createElement('span');
+			p.className = outcome ? 'pass' : 'fail';
+			testString = testString.replace(/\</g, "&lt;")
+			testString = testString.replace(/\>/g, "&gt;")
+			var outStr = description + ": <code>" + testString + "</code><br>";
+			p.innerHTML = outStr;
+			output.appendChild(p);
 		}
 
+		// setup
+		eval(document.getElementById('test_setup').innerHTML);
+
 		// actual tests begin here
-		var data = [0, -1, 1, 2, -2];
-		assert(amin(data) === -2, 'min function');
-		assert(amax(data) === 2, 'max function');
-		assert(amean(data) === 0, 'mean function');
-		assert(astd(data).toFixed(3) === "1.581", 'std function');
-		assert(aequals(arange(4), [0, 1, 2, 3]), 'arange - one argument');
-		assert(aequals(arange(1, 4), [1, 2, 3]), 'arange - two arguments');
-		assert(aequals(arange(0, 5, 2), [0, 2, 4]), 'arange - three arguments')
-		data = [0, 0.3, 1.0, 1.2, 1.5, 2.1, 2.7, 3.5, 4.1];
-		let bins = [1, 2, 3];
-		let {counts, underflow, overflow} = hist(data, bins);
-		assert(aequals(counts, [3, 2, 1]), 'hist counts');
-		assert(underflow == 2, 'hist underflow'); // 0, 0.3
-		assert(overflow == 1, 'hist overflow'); // 4.1
-		assert(aequals(linspace(0,5,5), [0, 1.25, 2.5, 3.75, 5]), 'linspace - include endpoint')
-		assert(aequals(linspace(0,5,5,false), [0, 1, 2, 3, 4]), 'linspace - exclude endpoint')
-		assert(aequals(linspace(0,4,5), [0, 1, 2, 3, 4]), 'linspace - include endpoint')
+		assert('amin(tstData) === -2', 'min function');
+		assert('amax(tstData) === 2', 'max function');
+		assert('amean(tstData) === 0', 'mean function');
+		assert('astd(tstData).toFixed(3) === "1.581"', 'std function');
+		assert('aequals(arange(4), [0, 1, 2, 3])', 'arange - one argument');
+		assert('aequals(arange(1, 4), [1, 2, 3])', 'arange - two arguments');
+		assert('aequals(arange(0, 5, 2), [0, 2, 4])', 'arange - three arguments')
+		assert('aequals(counts, [3, 2, 1])', 'hist counts');
+		assert('underflow === data.filter(x => x < amin(bins)).length', 'hist underflow'); // 0, 0.3
+		assert('overflow === data.filter(x => x > amax(bins)+binWidth).length', 'hist overflow'); // 4.1
+		assert('aequals(linspace(0,5,5), [0, 1.25, 2.5, 3.75, 5])', 'linspace - include endpoint');
+		assert('aequals(linspace(0,5,5,false), [0, 1, 2, 3, 4])', 'linspace - exclude endpoint');
 	</script>
+	</div>
 </body>
 
 </html>

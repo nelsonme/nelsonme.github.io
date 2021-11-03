@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+<html>
+
+<head>
+	<title>rand.js: testing </title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="../docs/css/main.css" />
+	<script src="https://nelsonme.github.io/libs/rand.js"></script>
+	<script src="https://nelsonme.github.io/libs/util.js"></script>
+
+	<style>
+		.pass:before {
+			content: 'PASS: ';
+			color: blue;
+			font-weight: bold;
+		}
+
+		.fail:before {
+			content: 'FAIL: ';
+			color: red;
+			font-weight: bold;
+
+		}
+
+		h1,
+		h2,
+		h3 {
+			font-size: 1.2em;
+		}
+
+		code {
+			font-size: 1.1em;
+		}
+	</style>
+</head>
+
+<body>
+	<div class="container">
+	<h1>rand.js - unit testing</h1>
+	<pre><code id="test_setup">//setup
+var nelems = 10;
+var a = -1;
+var b = 3;
+var choices = ['n', 's', 'e', 'w'];
+// initial seed
+seed(12345);
+var xrandi = [...new Array(nelems)].map(() => randi(a,b)); 
+var xrandf =  [...new Array(nelems)].map(() => randf(a,b)); 
+var xrandn =  [...new Array(nelems)].map(() => randn(a,b)); 
+var xranda =  [...new Array(nelems)].map(() => randa(choices)); 
+// unseeded
+unseed();
+var yrandi =  [...new Array(nelems)].map(() => randi(a,b)); 
+var yrandf =  [...new Array(nelems)].map(() => randf(a,b)); 
+var yrandn =  [...new Array(nelems)].map(() => randn(a,b)); 
+var yranda =  [...new Array(nelems)].map(() => randa(choices)); 
+// re-seed using same seed
+seed(12345);
+var zrandi =  [...new Array(nelems)].map(() => randi(a,b)); 
+var zrandf =  [...new Array(nelems)].map(() => randf(a,b)); 
+var zrandn =  [...new Array(nelems)].map(() => randn(a,b)); 
+var zranda =  [...new Array(nelems)].map(() => randa(choices)); 
+</code></pre>
+
+	<h2>testing...</h2>
+	<div id="output"></div>
+	<script>
+		const output = document.getElementById('output');
+		function assert(testString, description) {
+			var outcome = eval(testString)
+			var p = document.createElement('span');
+			p.className = outcome ? 'pass' : 'fail';
+			testString = testString.replace(/\</g, "&lt;")
+			testString = testString.replace(/\>/g, "&gt;")
+			var outStr = description + ": <code>" + testString + "</code><br>";
+			p.innerHTML = outStr;
+			output.appendChild(p);
+		}
+
+		eval(document.getElementById('test_setup').textContent);
+
+		// actual tests begin here
+		// compared seeded vs re-seeded (should be the same)
+		assert('aequals(xrandi, zrandi)', 'reproducible seed results');
+		assert('aequals(xrandf, zrandf)', 'reproducible seed results');
+		assert('aequals(xrandn, zrandn)', 'reproducible seed results');
+		assert('aequals(xranda, zranda)', 'reproducible seed results');
+		// compare seeded vs unseeded (should be different)
+		assert('!aequals(xrandi, yrandi)', 'different unseeded results');
+		assert('!aequals(xrandf, yrandf)', 'different unseeded results');
+		assert('!aequals(xrandn, yrandn)', 'different unseeded results');
+		assert('!aequals(xranda, yranda)', 'different unseeded results');
+	</script>
+	</div>
+</body>
+
+</html>
