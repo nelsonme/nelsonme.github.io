@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>js</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="docs/css/main.css" />
+  <style>
+    code {
+      font-size: 14px;
+    }
+
+    details {
+      margin-bottom: 0.5em;
+    }
+
+    details summary {
+      font-size: 1.3em;
+      background-color: gainsboro;
+      padding-left: 0.5em;
+    }
+
+    details li {
+      list-style-type: none;
+      margin-bottom: 0.5em;
+    }
+  </style>
+</head>
+
+<body>
+
+  <img class="logo" src="docs/images/logo.png" />
+  <div class="tagline">a personal sandbox</div>
+
+  <ul class="nav">
+    <li>
+      <a href="index.html">home</a>
+    </li>
+    <li>
+      <a href="js.html">js</a>
+    </li>
+    <li>
+      <span>libs</span>
+    </li>
+    <li>
+      <a href="maps.html">maps</a>
+    </li>
+    <li>
+      <a href="scratch.html">scratch</a>
+    </li>
+    <li>
+      <a href="tools.html">tools</a>
+    </li>
+  </ul>
+
+  <div class="container">
+    <h3>My javascript libraries</h3>
+    <p>Include in html header:</p>
+<pre><code>&lt;head&gt;
+&lt;script src="https://nelsonme.github.io/libs/util.js"&gt;&lt;/script&gt;
+&lt;/head&gt;
+</code></pre>
+    <p> Expand the accordion sections below for documentation:</p>
+    <details>
+      <summary>example</summary>
+      This is some example text.
+    </details>
+
+    <details>
+      <summary>
+        <a href="https://nelsonme.github.io/libs/util.js">util.js</a> - utility functions, mostly for arrays
+      </summary>
+
+      <ul>
+        <li><code>amin(array)</code> - min value of array</li>
+        <li><code>amax(array)</code> - max value of array</li>
+        <li><code>amean(array)</code> - mean value of array</li>
+        <li><code>astd(array)</code> - standard deviation of array</li>
+        <li><code>aequals(a, b)</code> - true if arrays a and b are equal (simple elements, like numbers)</li>
+        <li><code>arange([start,] stop, [step=1])</code> creates an array of evenly spaced values
+          <ul>
+            <li>the stop point is NOT included</li>
+            <li>arange(5) returns [0, 1, 2, 3, 4]</li>
+            <li>arange(6, 10) returns [6, 7, 8, 9]</li>
+            <li>arange(0, 3, 0.5) returns [0, 0.5, 1.0, 1.5, 2.0, 2.5]</li>
+          </ul>
+        </li>
+        <li><code>hist(data, bins)</code> computes histogram counts in specified bins
+          <ul>
+            <li>bins is an array of lower bin edges, equally spaced</li>
+            <li>returns {counts, underflow, overflow} - counts is same size as bins, underflow and overflow are scalars
+            </li>
+          </ul>
+        </li>
+        <li><code>linspace(start, stop, N=20, endpt = true)</code> creates an array of N evenly spaced numbers
+          <ul>
+            <li>the stop point IS included by default (controlled by endpt flag)</li>
+            <li>linspace(0, 5, 5) returns [0, 1.25, 2.5, 3.75, 5]</li>
+            <li>linspace(0, 5, 5, false) returns [0, 1, 2, 3, 4]</li>
+            <li>linspace(0, 5, 6) returns [0, 1, 2, 3, 4, 5]</li>
+          </ul>
+        </li>
+      </ul>
+    </details>
+  </div>
+</body>
+
+</html>
