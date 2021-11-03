@@ -1,0 +1,60 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<script src="util.js"></script>
+	<title>util: testing </title>
+	<style>
+		.pass:before {
+			content: 'PASS: ';
+			color: blue;
+			font-weight: bold;
+		}
+
+		.fail:before {
+			content: 'FAIL: ';
+			color: red;
+			font-weight: bold;
+
+		}
+	</style>
+</head>
+
+<body>
+	<h1>util.js</h1>
+	<h2>testing...</h2>
+	<ul id="output"></ul>
+	<script>
+
+		const output = document.getElementById('output');
+		function assert(outcome, description) {
+			var li = document.createElement('li');
+			li.className = outcome ? 'pass' : 'fail';
+			li.appendChild(document.createTextNode(description));
+			output.appendChild(li);
+		}
+
+		// actual tests begin here
+		var data = [0, -1, 1, 2, -2];
+		assert(amin(data) === -2, 'min function');
+		assert(amax(data) === 2, 'max function');
+		assert(amean(data) === 0, 'mean function');
+		assert(astd(data).toFixed(3) === "1.581", 'std function');
+		assert(aequals(arange(4), [0, 1, 2, 3]), 'arange - one argument');
+		assert(aequals(arange(1, 4), [1, 2, 3]), 'arange - two arguments');
+		assert(aequals(arange(0, 5, 2), [0, 2, 4]), 'arange - three arguments')
+		data = [0, 0.3, 1.0, 1.2, 1.5, 2.1, 2.7, 3.5, 4.1];
+		let bins = [1, 2, 3];
+		let {counts, underflow, overflow} = hist(data, bins);
+		assert(aequals(counts, [3, 2, 1]), 'hist counts');
+		assert(underflow == 2, 'hist underflow'); // 0, 0.3
+		assert(overflow == 1, 'hist overflow'); // 4.1
+		assert(aequals(linspace(0,5,5), [0, 1.25, 2.5, 3.75, 5]), 'linspace - include endpoint')
+		assert(aequals(linspace(0,5,5,false), [0, 1, 2, 3, 4]), 'linspace - exclude endpoint')
+		assert(aequals(linspace(0,4,5), [0, 1, 2, 3, 4]), 'linspace - include endpoint')
+	</script>
+</body>
+
+</html>
