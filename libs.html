@@ -6,26 +6,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="docs/css/main.css" />
-  <style>
-    code {
-      font-size: 0.8em;
-    }
-
-    details {
-      margin-bottom: 0.5em;
-    }
-
-    details summary {
-      font-size: 1.3em;
-      background-color: gainsboro;
-      padding-left: 0.5em;
-    }
-
-    details li {
-      list-style-type: none;
-      margin-bottom: 0.5em;
-    }
-  </style>
+  <script src="https://nelsonme.github.io/libs/util.js"></script>
 </head>
 
 <body>
@@ -55,21 +36,44 @@
   </ul>
 
   <div class="container">
-    <h3>My javascript libraries</h3>
-    <p>Include in html header:</p>
-<pre><code>&lt;head&gt;
-&lt;script src="https://nelsonme.github.io/libs/util.js"&gt;&lt;/script&gt;
-&lt;/head&gt;
+    <p>My javascript libraries; include in html header as:</p>
+<pre><code> &lt;script src="https://nelsonme.github.io/libs/util.js"&gt;&lt;/script&gt;
 </code></pre>
     <p> Expand the accordion sections below for documentation:</p>
     <details>
-      <summary>example</summary>
-      This is some example text.
+      <summary>rand.js - random number generation
+        <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/rand.js">source</a>)</span>
+      </summary>
+      <ul>
+      
+        <li>uses <a target="_blank" href="https://en.wikipedia.org/wiki/Linear_congruential_generator">LCG algorithm</a> if user specifies a seed, 
+        otherwise uses <code>Math.random()</code> because it is faster</li>
+        <li><code>rand()</code> - uniform random number in [0,1)</li>
+        <li><code>randa(array)</code> - returns a random element from the array</li>
+        <li><code>randf([a],[b])</code> - uniform random float</li>
+        <ul>
+        <li><code>randf()</code> - random float in <code>[0,1)</code>; same as calling <code>rand()</code></li>
+        <li><code>randf(a)</code> - random float in <code>[0,a)</code></li>
+        <li><code>randf(a,b)</code> - random float in <code>[a,b)</code></li>
+        </ul>
+        <li><code>randi([a],[b])</code> - returns random integer</li>
+        <ul>
+        <li><code>randi()</code> returns 0 or 1</li>
+        <li><code>randi(a)</code> returns random integer in <code>[0,a)</code></li>
+        <li><code>randi(a,b)</code> returns random integer in <code>[a,b)</code></li>
+        </ul>
+        <li><code>randn([std=1])</code> - normally distributed random values with zero mean and specified std (default=1)</li>
+        <li><code>seed(val)</code> - sets the seed and starts using LCG algorithm</li>
+        <li><code>seed()</code> - returns the current seed</li>
+        <li><code>unseed()</code> - switches back to unseeded mode, starts using <code>Math.random()</code></li>
+        <li><code>isSeeded()</code> - returns seeded status (true/false)<li>
+      </ul>
     </details>
 
     <details>
       <summary>
-        util.js - utility functions for arrays
+        util.js - utility functions for arrays 
+        <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/util.js">source</a>)</span>
       </summary>
 
       <ul>
@@ -77,28 +81,25 @@
         <li><code>amax(array)</code> - max value of array</li>
         <li><code>amean(array)</code> - mean value of array</li>
         <li><code>astd(array)</code> - standard deviation of array</li>
-        <li><code>aequals(a, b)</code> - true if arrays a and b are equal (simple elements, like numbers)</li>
-        <li><code>arange([start,] stop, [step=1])</code> creates an array of evenly spaced values
+        <li><code>aequals(a, b)</code> - returns true if arrays a and b are equal
+        <ul><li>only works if all elements are primitives (numbers, strings, booleans)</li></ul>
+        <li><code>arange([start,] stop, [step=1])</code> - returns an array of evenly spaced values
           <ul>
             <li>the stop point is NOT included</li>
-            <li>arange(5) returns [0, 1, 2, 3, 4]</li>
-            <li>arange(6, 10) returns [6, 7, 8, 9]</li>
             <li>arange(0, 3, 0.5) returns [0, 0.5, 1.0, 1.5, 2.0, 2.5]</li>
           </ul>
         </li>
-        <li><code>hist(data, bins)</code> computes histogram counts in specified bins
+        <li><code>hist(array, bins)</code> computes histogram counts in specified bins
           <ul>
             <li>bins is an array of lower bin edges, equally spaced</li>
-            <li>returns {counts, underflow, overflow} - counts is same size as bins, underflow and overflow are scalars
-            </li>
+            <li>returns <code>{counts, underflow, overflow}</code>, 
+            <code>counts</code> is same size as bins, <code>underflow</code>and <code>overflow</code>are scalars</li>
           </ul>
         </li>
-        <li><code>linspace(start, stop, N=20, endpt = true)</code> creates an array of N evenly spaced numbers
+        <li><code>linspace(start, stop, [N=20], [endpt = true])</code> - returns an array of N evenly spaced numbers
           <ul>
             <li>the stop point IS included by default (controlled by endpt flag)</li>
-            <li>linspace(0, 5, 5) returns [0, 1.25, 2.5, 3.75, 5]</li>
-            <li>linspace(0, 5, 5, false) returns [0, 1, 2, 3, 4]</li>
-            <li>linspace(0, 5, 6) returns [0, 1, 2, 3, 4, 5]</li>
+            <li>(useful for generating exactly N bins for <code>hist</code>)</li>
           </ul>
         </li>
       </ul>
