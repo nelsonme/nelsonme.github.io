@@ -2,56 +2,35 @@
 
 (function (target) { // target is 'window' (browser) or 'exports' (node.js)
 
+
     'use strict';
 
-    /**
-     * compares two arrays for equality
-     * @param {array} a 
-     * @param {array} b 
-     * @returns {boolean}
-     */
     const aequals = function (a, b) {
+        // compares two arrays for equality
         return Array.isArray(a) &&
             Array.isArray(b) &&
             a.length === b.length &&
             a.every((val, index) => val === b[index]);
     }
 
-    /**
-     * return minimum value of array
-     * @param {array} a
-     * @returns {number}
-     */
     const amin = function (a) {
+        // return minimum value of array
         return Math.min(...a)
     }
 
-    /**
-     * return maximum value of array
-     * @param {array} a
-     * @returns {number}
-     */
     const amax = function (a) {
+        // return maximum value of array
         return Math.max(...a)
     }
 
-    /**
-     * return mean value of array
-     * @param {array} a
-     * @returns {number}
-     */
     const amean = function (a) {
+        // return mean value of array
         const n = a.length;
         return a.reduce((a, b) => a + b) / n;
     }
 
-    /**
-     * return standard deviation of array
-     * @param {array} a
-     * @returns {number}
-     */
     const astd = function (array) {
-        // array standard deviation
+        // return standard deviation of array
         const n = array.length;
         const mean = amean(array);
         return Math.sqrt(
@@ -59,13 +38,10 @@
                 .reduce((a, b) => a + b) / (n - 1));
     }
 
-    /**
-     * return an array of evenly spaced values
-     * usage: arange([start,] stop, [step])
-     * values are generated in [start, stop)
-     * @returns {array}
-     */
     const arange = function () {
+        // return an array of evenly spaced values
+        // usage: arange([start,] stop, [step])
+        // values are generated in [start, stop)
 
         let args = arguments;
         let nargs = args.length;
@@ -93,13 +69,9 @@
     }
 
 
-    /**
-     * [counts, bins, underflow, overflow] = hist(data, bins)
-     * @param {*} data - an array of data points 
-     * @param {*} bins - an array of bin edges, equally spaced
-     * @returns {object} {counts, underflow, overflow}
-     */
     const hist = function (data, bins) {
+        // generate histogram data 
+        // {counts, underflow, overflow} = hist(data, bins)
         let underflow = 0;
         let overflow = 0;
         let counts = bins.map(() => 0); // array of zeros, same size as bins
@@ -124,23 +96,15 @@
         }
     }
 
-    /**
-     * 
-     * return an array of n evenly spaced values
-     * usage: linspace(x1, x2, [n=50], [endpt=true])
-     * by default the endpt is included, values in [start, stop]
-     * call with endpt = false to exclude endpoint
-     * examples: 
-     *  linspace(0, 5, 5) returns [0, 1.25, 2.5, 3.75, 5.0]
-     *  linspace(0, 5, 6) returns [0, 1, 2, 3, 4, 5]
-     *  linspace(0, 5, 5, false) returns [0, 1, 2, 3, 4]
-     * @param {number} x1 
-     * @param {number} x2 
-     * @param {number} n 
-     * @param {boolean} endpt 
-     * @returns {array}
-     */
-    const linspace = function (x1, x2, n = 50, endpt = true) {
+    const linspace = function (x1, x2, n = 20, endpt = true) {
+        // return an array of n evenly spaced values
+        // usage: linspace(x1, x2, [n=50], [endpt=true])
+        // by default the endpt is included, values in [start, stop]
+        // call with endpt = false to exclude endpoint
+        // examples: 
+        //  linspace(0, 5, 5) returns [0, 1.25, 2.5, 3.75, 5.0]
+        //  linspace(0, 5, 6) returns [0, 1, 2, 3, 4, 5]
+        //  linspace(0, 5, 5, false) returns [0, 1, 2, 3, 4]
 
         let a = [];
         if (endpt) {
