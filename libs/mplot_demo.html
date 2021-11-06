@@ -1,0 +1,122 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+
+<html>
+
+<head>
+  <title>mplot demo</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="../docs/css/main.css" />
+  <script src="../libs/mplot.js"></script>
+  <script src="../libs/rand.js"></script>
+  <script src="../libs/util.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      margin-bottom: 200px;
+      max-width: 850px;
+    }
+
+    canvas {
+      border: 1px solid gainsboro;
+      display: inline-block;
+      margin: 10px;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4 {
+      background-color: gainsboro;
+      margin-right: 10px;
+      padding: 5px;
+    }
+
+    textarea {
+      display: inline-block;
+      font-size: 14px;
+      margin-right: 10px;
+      padding-top: 10px;
+      padding-left: 5px;
+      font-family: 'Lucida Console', monospace;
+      line-height: 1.4em;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+  </style>
+
+  <script>
+    function setup() {
+      var N = 10000;
+      var data = [];
+      var i, bins, result;
+      var x, y1, y2, z;
+      var data, bins, result;
+      eval(document.getElementById('text1').value);
+      eval(document.getElementById('text2').value);
+      eval(document.getElementById('text3').value);
+      //eval(document.getElementById('text4').value);
+    }
+  </script>
+</head>
+
+<body onload="setup()">
+  <h2>Matlab-like plotting with mplot.js</h2>
+  (To see a similar set of plots using numpy/pyplot in python,
+  <a href="https://colab.research.google.com/drive/1ZaUDV4C4naVA7vV8j68WaKqugXI1WtKp?usp=sharing">click here
+  </a>)
+
+  <h4>basic x,y plotting - lines, points, text</h4>
+  <div class="row">
+    <textarea id="text1" rows="12" cols="45" readonly>
+figure(1);
+x = linspace(-3, 3, 40);
+y1 = x.map(x => x * x);
+y2 = x.map(x => 4 * Math.sin(x));
+plot(x, y1, 'm-');
+plot(x, y2, 'r.');
+xlabel('x');
+ylabel('y');
+gtext('This is a gtext string', -1.5, 8.5, 
+    'g', 18);
+gtext('parabola', -1.9, 4.2, 'm');
+gtext('sine', 1.2, 4.4, 'r');
+    </textarea>
+    <canvas id="fig1" width="400" height="300"></canvas>
+  </div>
+  <h4>indexed data (no x values)</h4>
+  <div class="row">
+    <textarea id="text2" rows="7" cols="45" readonly>
+figure(2, {height:200, bgcolor:'lightCyan'});
+y1 = arange(100).map(i => randf(-i, i));
+plot(y1, 'go-'); 
+xlabel('index');
+ylabel('value');      
+yticks(-100, 100, 25);
+</textarea>
+    <canvas id="fig2" width="400" height="300"></canvas>
+  </div>
+
+  <h4>bar graphs for histograms</h4>
+  <div class="row">
+    <textarea id="text3" rows="10" cols="45" readonly>
+figure(3, {bgcolor: 'lavender'});
+data = arange(1000).map(() => randn());
+bins = arange(-3, 3, 0.5);
+result = hist(data, bins);
+plot(bins, result.counts, 'b|');
+xticks(-3, 3, 0.5);
+ylim(0, gca().yticks.max); // force zero
+xlabel('value');
+ylabel('counts');      
+</textarea>
+    <canvas id="fig3" width="400" height="300"></canvas>
+  </div>
+</body>
+
+</html>

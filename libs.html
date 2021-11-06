@@ -41,8 +41,31 @@
     <p>My javascript libraries; include in html header as:</p>
     <pre><code> &lt;script src="https://nelsonme.github.io/libs/util.js"&gt;&lt;/script&gt;
 </code></pre>
-    <p> Expand the accordion sections below for documentation:</p>
-
+    <p> Expand the accordion sections below for brief documentation:</p>
+    <!-- mplot.js -->
+    <details>
+      <summary>mplot.js - matlab-like plotting capabilities
+        <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/mplot.js">source</a>)</span>
+      </summary>
+      <ul>
+        <li><code>figure(num, [opts])</code> set current figure, creates it if it does not exist (num=1,2,…)<br /></li>
+        <ul>
+          <li>looks for (or creates) &lt;canvas id=”fig1”&gt; tag in html<br /></li>
+          <li>example opts: {width: 600px, height: 400px, bgcolor: ‘lightCyan’}</li>
+        </ul>
+        <li><code>gca</code> global variable, current axis (javascript object)</li>
+        <li><code>gcf</code> global variable, fig id (string matching id of canvas: “fig1”, “fig2”, etc.)</li>
+        <li> <code>plot([xdata,], ydata, [style])</code> - plots the data<br />
+          <ul>
+            <li>style examples: ‘b-‘ (blue line), ‘ro-‘ (red line with open points), ‘k|’ (black bars)</li>
+          </ul>
+        </li>
+        <li><code>xlabel, ylabel(text)</code> dd axis labels</li>
+        <li><code>xlim, ylim(min, max)</code> set axis limits; also <code>ylim([min, max])</code></li>
+        <li><code>xticks, yticks(min, max, step)</code> sets ticks and turns off autoranging</li>
+        <li><code>gca.onclick</code> method for click functionality</li>
+      </ul>
+    </details>
     <!-- rand.js -->
     <details>
       <summary>rand.js - random number generation
@@ -117,10 +140,16 @@
 
     <!-- UNIT TESTS-->
     <details>
-      <summary>Live unit tests - click links; results open in new tab</summary>
+      <summary>Demos and unit tests</summary>
       <ul>
-        <li></li><a target="_blank" href="libs/test_rand.html">test_rand.html</a>
-        <li></li><a target="_blank" href="libs/test_util.html">test_util.html</a>
+        <li>
+          <a target="_blank" href="libs/mplot_demo.html">mplot: demo plots</a>
+        <li>
+          <a target="_blank" href="libs/test_rand.html">rand: unit tests</a>
+        </li>
+        <li>
+          <a target="_blank" href="libs/test_util.html">util: unit tests</a>
+        </li>
       </ul>
     </details>
 

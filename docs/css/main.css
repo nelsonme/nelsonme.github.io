@@ -49,6 +49,11 @@ details summary {
 	padding: 0.2em 0.5em;
 }
 
+details ul {
+	margin-left: 1em;
+	padding-inline-start: 10px;
+}
+
 details li {
 	list-style-type: none;
 	margin-top: 0.2em;
