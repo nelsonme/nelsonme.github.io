@@ -69,8 +69,9 @@
                 var distMoved = lastLocation.distanceTo(e.latlng);
                 if (distMoved > 3.0) {
                     usermarker.setLatLng(e.latlng);
-                    usermarker.update();
+                    //usermarker.update();
                     //map.setView(e.latlng);
+                    map.invalidateSize();
                     logMsg(`update marker: ${timestamp}: moved ${distMoved.toFixed(1)} meters`)
                     lastLocation = e.latlng;
                 }
