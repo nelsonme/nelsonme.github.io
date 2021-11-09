@@ -64,7 +64,7 @@
                 var distMoved = lastLocation.distanceTo(e.latlng);
                 if (distMoved > 1.0) {
                     usermarker.setLatLng(e.latlng).update();
-                    logMsg(`update marker: ${timestamp}: ${e.latlng.lat} ${e.latlng.lng}`)
+                    logMsg(`update marker: ${timestamp}: moved ${distMoved.toFixed(1)} meters`)
                 }
             }
             // save current position as last location
