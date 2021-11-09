@@ -16,7 +16,8 @@
         crossorigin=""></script>
 
     <style>
-        html, body {
+        html,
+        body {
             height: 100%;
             padding: 0;
             margin: 5px;
@@ -24,7 +25,7 @@
 
         #map {
             height: 90%;
-            width: 100%; 
+            width: 100%;
         }
 
         #log {
@@ -42,6 +43,7 @@
     <script>
         var map = L.map('map').setView([40, -88], 6);
         var usermarker; // shows user location
+        var lastLocation;
 
         var logArea = document.getElementById('log');
         var logMsg = (str) => { logArea.textContent += str + '\n' }
@@ -52,15 +54,21 @@
         }).addTo(map);
 
         function onLocationFound(e) {
+            var timestamp = new Date().toLocaleTimeString();
             if (!usermarker) {
                 map.setView(e.latlng, 16);
                 usermarker = L.marker(e.latlng).addTo(map);
-                logMsg(`init view: ${e.latlng.lat} ${e.latlng.lng}`)
+                logMsg(`init view: ${timestamp}: ${e.latlng.lat} ${e.latlng.lng}`)
+                
             } else {
-                usermarker.setLatLng(e.latlng);
-                console.log(e.latlng)
-                logMsg(`update marker: ${e.latlng.lat} ${e.latlng.lng}`)
+                var distMoved = lastLocation.distanceTo(e.latlng);
+                if (distMoved > 1.0) {
+                    usermarker.setLatLng(e.latlng).update();
+                    logMsg(`update marker: ${timestamp}: ${e.latlng.lat} ${e.latlng.lng}`)
+                }
             }
+            // save current position as last location
+            lastLocation = e.latlng;
         }
 
         function onLocationError(e) {
@@ -75,7 +83,7 @@
 
         map.on('locationfound', onLocationFound);
         map.on('locationerror', onLocationError);
-        map.locate({watch: true, enableHighAccuracy: true}); // use watch: true for following user
+        map.locate({ watch: true, enableHighAccuracy: true }); // use watch: true for following user
     </script>
 
 </body>
