@@ -15,40 +15,36 @@
         integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
         crossorigin=""></script>
 
-
     <style>
-        html,
-        body {
+        html, body {
             height: 100%;
-            margin: 0;
-        }
-
-        #map {
-            width: 600px;
-            height: 400px;
-        }
-    </style>
-
-    <style>
-        body {
             padding: 0;
-            margin: 0;
+            margin: 5px;
         }
 
         #map {
-            height: 100%;
-            width: 100vw;
+            height: 90%;
+            width: 100%; 
+        }
+
+        #log {
+            display: block;
+            height: 10%;
+            width: 100%;
         }
     </style>
 </head>
 
 <body>
-
     <div id='map'></div>
+    <textarea id='log'></textarea>
 
     <script>
-        var map = L.map('map').fitWorld();
+        var map = L.map('map').setView([40, -88], 6);
         var usermarker; // shows user location
+
+        var logArea = document.getElementById('log');
+        var logMsg = (str) => { logArea.textContent += str + '\n' }
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -56,25 +52,30 @@
         }).addTo(map);
 
         function onLocationFound(e) {
-            if(!usermarker) {
+            if (!usermarker) {
+                map.setView(e.latlng, 16);
                 usermarker = L.marker(e.latlng).addTo(map);
+                logMsg(`init view: ${e.latlng.lat} ${e.latlng.lng}`)
             } else {
                 usermarker.setLatLng(e.latlng);
+                console.log(e.latlng)
+                logMsg(`update marker: ${e.latlng.lat} ${e.latlng.lng}`)
             }
         }
 
         function onLocationError(e) {
-            alert(e.message);
+            logMsg(e.message)
+            /*
             if(usermarker) {
                 map.removeLayer(usermarker);
                 usermarker = null;
             }
+            */
         }
 
         map.on('locationfound', onLocationFound);
         map.on('locationerror', onLocationError);
-
-        map.locate({ setView: true, watch: true, maxZoom: 18 }); // use watch: true for following user
+        map.locate({watch: true, enableHighAccuracy: true}); // use watch: true for following user
     </script>
 
 </body>
