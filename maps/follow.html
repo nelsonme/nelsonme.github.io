@@ -46,7 +46,10 @@
         var lastLocation;
 
         var logArea = document.getElementById('log');
-        var logMsg = (str) => { logArea.textContent += str + '\n' }
+        var logMsg = (str) => { 
+            logArea.textContent += str + '\n'; 
+            logArea.scrollTop = logArea.scrollHeight;
+        }
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             maxZoom: 19,
@@ -59,16 +62,16 @@
                 map.setView(e.latlng, 16);
                 usermarker = L.marker(e.latlng).addTo(map);
                 logMsg(`init view: ${timestamp}: ${e.latlng.lat} ${e.latlng.lng}`)
+                lastLocation = e.latlng;
             } else {
                 var distMoved = lastLocation.distanceTo(e.latlng);
                 if (distMoved > 3.0) {
                     usermarker.setLatLng(e.latlng);
                     map.setView(e.latlng);
                     logMsg(`update marker: ${timestamp}: moved ${distMoved.toFixed(1)} meters`)
+                    lastLocation = e.latlng;
                 }
             }
-            // save current position as last location
-            lastLocation = e.latlng;
         }
 
         function onLocationError(e) {
