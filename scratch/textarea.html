@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #log {
+      width: 600px;
+      height: 300px;
+    }
+  </style>
+</head>
+
+<body>
+  <textarea id='log'></textarea>
+  <div>
+    <button type="button" id='logBtn'>add line</button>
+  </div>
+  <script>
+    var count = 0;
+    var logArea = document.getElementById('log')
+    var logBtn = document.getElementById('logBtn')
+    logBtn.onclick = () => {
+      logArea.textContent += `line ${++count}\n`;
+    };
+  </script>
+</body>
+
+</html>
