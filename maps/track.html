@@ -3,7 +3,7 @@
 
 <head>
 
-    <title>Follow User - Leaflet</title>
+    <title>Track User - Leaflet</title>
 
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -69,8 +69,6 @@
                 var distMoved = lastLocation.distanceTo(e.latlng);
                 if (distMoved > 3.0) {
                     usermarker.setLatLng(e.latlng);
-                    //usermarker.update();
-                    //map.setView(e.latlng);
                     map.invalidateSize();
                     logMsg(`update marker: ${timestamp}: moved ${distMoved.toFixed(1)} meters`)
                     lastLocation = e.latlng;
