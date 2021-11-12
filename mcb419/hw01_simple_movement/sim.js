@@ -6,19 +6,6 @@ var itick; // simulation clock
 var bot; // bot object
 var ticksPerSecond = 30;
 
-// convenience
-const PI = Math.PI;
-const sin = Math.sin;
-const cos = Math.cos;
-const abs = Math.abs;
-const max = Math.max;
-const sqrt = Math.sqrt;
-function dist(x1, y1, x2, y2) {
-  let dx = (x1 - x2);
-  let dy = (y1 - y2);
-  return sqrt(dx*dx + dy*dy)
-}
-
 function setup() {
   initCanvas('cnv1',400, 400)
   bot = new Bot(); // NEW CODE
