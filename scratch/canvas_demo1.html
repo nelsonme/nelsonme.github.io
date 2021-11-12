@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <script src="canvas.js"></script>
+  <title>canvas.js demo</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      margin: 10px;
+    }
+  </style>
+  <script>
+    function setup() {
+      initCanvas("cnv1", 400, 400);
+      background("#def");
+
+      // some text
+      fontSize(20);
+      textAlign("center");
+      text("Canvas Demo", 200, 30);
+
+      // an unfilled rectangle
+      strokeStyle('red');
+      noFill();
+      rect(50, 50, 150, 100);
+
+      // draw an "eye" inside the rectangle
+      // white ellipse for the "sclera"
+      lineWidth(3);
+      strokeStyle('black');
+      fillStyle('white');
+      ellipse(125, 100, 150, 100);
+
+      // brown "iris"
+      noStroke();
+      fillStyle('brown');
+      circle(125, 100, 48);
+
+      // dark grey "pupil"
+      fillStyle('#333')
+      circle(125, 100, 15);
+
+      // draw red, green, blue lines to the corners 
+      lineWidth(3);
+      strokeStyle('red');
+      line(200, 150, width, 0);
+      strokeStyle('green');
+      line(200, 150, width, height);
+      strokeStyle('blue');
+      line(200, 150, 0, height);
+
+      /*
+      ** SWITCH TO cnv2
+      */
+
+      initCanvas("cnv2", 600, 200);
+      background("lightyellow");
+      textAlign("center");
+      fontSize(30);
+      fillStyle('green')
+      text("This is a second canvas", width / 2, 50);
+
+      noStroke();
+      fillStyle('lightGreen')
+      for (var x = 50; x < width - 50; x += 2) {
+        var y = 120 + 10 * Math.sin(x / 20);
+        var r = 20 * x / width;
+        circle(x, y, r);
+      }
+      fillStyle('green');
+      strokeStyle('black');
+      lineWidth(2);
+      circle(x, y, r);
+
+      /*
+      ** SWITCH BACK TO cnv1
+      */
+      canvas("cnv1");
+      // draw a "bot"
+      csave();
+      fillStyle('lightgreen');
+      strokeStyle('black');
+      translate(200, 300);
+      rotate(-45);
+      lineWidth(2);
+      circle(0, 0, 20);
+      lineWidth(1);
+      line(0, 0, 20, 0);
+      crestore();
+
+
+
+    }
+  </script>
+</head>
+
+<body onload="setup()">
+  <canvas id="cnv1"></canvas>
+  <canvas id="cnv2"></canvas>
+</body>
+
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>leaflet demo2</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+</head>
+
+<body>
+  <div id='mapDiv' style="height:600px; width:800px">
+  </div>
+    <select id="selectLocation">
+      <option value="CU">Champaign-Urbana</option>
+      <option value="yosemite_valley">Yosemite Valley</option>
+      <option value="bend_or">Bend, OR</option>
+    </select>
+
+  <script>
+    // Leaflet demo with multiple base layers
+
+    // base layers
+    var openStreet = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19
+    });
+
+    var openTopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17
+    });
+
+    var esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 20
+    });
+
+    var esriTopo = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
+      maxZoom: 20
+    });
+
+    // the following google tiles are for demo purposes only
+    var gStreet = L.tileLayer('http://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+      maxZoom: 19,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+
+    var gHybrid = L.tileLayer('http://{s}.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+      maxZoom: 19,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+
+    var gSat = L.tileLayer('http://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+      maxZoom: 19,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+
+    var gTerrain = L.tileLayer('http://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
+      maxZoom: 19,
+      subdomains: ['mt0', 'mt1', 'mt2', 'mt3']
+    });
+
+    // predefined some location choices
+    const CU = { latlng: { lat: 40.116, lng: -88.243 }, zoom: 12, defaultBaseLayer: openStreet };
+    const yosemite_valley = { latlng: { lat: 37.748, lng: -119.588 }, zoom: 14, defaultBaseLayer: gTerrain };
+    const bend_or = { latlng: {lat: 44.06, lng: -121.319}, zoom:15, defaultBaseLayer: gTerrain };
+
+    // create the map
+    var myMap = L.map('mapDiv', {zoomControl: false});
+
+    // add layer control in upper right corner
+    var baseLayerList = {
+      "OpenStreet": openStreet,
+      "OpenTopo": openTopo,
+      "esriSatellite": esriSat,
+      "esriTopo": esriTopo,
+      "gStreet": gStreet,
+      "gHybrid": gHybrid,
+      "gSatellite": gSat,
+      "gTerrain": gTerrain
+    };
+    // add a control to select different base layers
+    L.control.layers(baseLayerList).addTo(myMap);
+
+    var currentBaseLayer = openStreet;
+    currentBaseLayer.addTo(myMap);
+
+    setChoice(CU);
+
+    function setChoice(location) {
+      myMap.setView(location.latlng, location.zoom);
+      myMap.removeLayer(currentBaseLayer);
+      location.defaultBaseLayer.addTo(myMap);
+      currentBaseMap = location.defaultBaseLayer;
+    }
+
+    function updateChoice(e) {
+      eval(`setChoice(${e.target.value})`)
+    }
+
+    var selectElement = document.getElementById("selectLocation")
+    selectElement.addEventListener('change', updateChoice)
+
+
+  </script>
+</body>
+
+</html>
