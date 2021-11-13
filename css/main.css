@@ -90,6 +90,18 @@ details li {
 	float: right;
 }
 
+.outer-container {
+	max-width: 900px;
+	text-align: center;
+	padding: 0 0.5em 1.5em;
+	margin: 0 auto;
+}
+
+.inner-container {
+	display: inline-block;
+	text-align: left; 
+}
+
 .container {
 	max-width: 900px;
 	padding: 0 0.5em 1.5em;
@@ -151,6 +163,7 @@ details li {
 
 @media only screen and (hover: none) {
 
+    /*
 	.logo {
 		width: 0;
 	}
@@ -159,6 +172,7 @@ details li {
 		font-size: 0;
 		padding: 0;
 	}
+    */
 
 	.nav {
 		font-size: 1em;
