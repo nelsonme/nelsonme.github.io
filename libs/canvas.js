@@ -135,6 +135,8 @@ function rect(x, y, w, h) {
   if (ctx._doStroke) ctx.stroke();
 }
 
+const rectangle = rect;
+
 function rotate(radians) {
   ctx.rotate(radians);
 }

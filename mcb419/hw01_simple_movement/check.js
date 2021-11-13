@@ -37,7 +37,7 @@ function check() {
     update();
     draw();
     if (itick < 314) {
-      window.requestAnimationFrame(testloop);
+      setTimeout(testloop, 1000/ticksPerSecond);
     } else {
       assert(approx(bot.x, width - 50), 'final x location');
       assert(approx(bot.y, height / 2), 'final y location');

@@ -1,0 +1,33 @@
+body {
+  font-family: Arial;
+}
+
+button {
+  margin: 10px 5px;
+  padding: 5px;
+}
+
+canvas {
+  display: block;
+  margin: 10px 5px;
+}
+
+.user {
+  color: red;
+}
+
+
+#reset {
+  background-color: wheat;
+}
+
+#run {
+  background-color: lightGreen;
+}
+#pause {
+  background-color: pink;
+}
+
+#check {
+  background-color: orange;
+}
