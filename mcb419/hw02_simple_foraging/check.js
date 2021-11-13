@@ -49,9 +49,6 @@ function check() {
     } else {
       assert(bot.energy > 9 && bot.energy < 50, 'final amount of energy collected');}
   }
-  assert(bot.energy > 9 && bot.energy < 50, 'final amount of energy collected');
-
-  outArea.textContent += ('DONE', true);
 
 }
 
