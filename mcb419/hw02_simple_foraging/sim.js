@@ -6,6 +6,7 @@ var itick; // simulation clock
 var bot; // bot object
 var pellets; // array of pellets
 var ticksPerSecond = 30;
+var outArea; // output area
 
 function setup() {
   initCanvas('cnv1', 400, 400)
@@ -13,6 +14,7 @@ function setup() {
   pellets = [];
   for (let i = 0; i < 100; i++) pellets.push(new Pellet());
   reset();
+  outArea = document.getElementById('out');
 }
 
 function reset() {

@@ -1,6 +1,5 @@
 function check() {
 
-  var outArea = document.getElementById('out');
   outArea.textContent = ''; //clear
 
   // make sure bot exists
@@ -33,11 +32,10 @@ function check() {
   testloop();
 
   function testloop() {
-    //paused = false;
     update();
     draw();
     if (itick < 314) {
-      setTimeout(testloop, 1000/ticksPerSecond);
+      setTimeout(testloop, 1);
     } else {
       assert(approx(bot.x, width - 50), 'final x location');
       assert(approx(bot.y, height / 2), 'final y location');
@@ -55,13 +53,11 @@ function assert(test, str) {
 }
 
 function passed(str) {
-  var outArea = document.getElementById('out');
   outArea.textContent += (str + ' ... OK\n');
   return true;
 }
 
 function failed(str) {
-  var outArea = document.getElementById('out');
   outArea.textContent += (str + ' ... FAILED\n');
   return false;
 }

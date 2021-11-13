@@ -1,6 +1,5 @@
 function check() {
 
-  var outArea = document.getElementById('out');
   outArea.textContent = ''; //clear
 
   reset();
@@ -41,11 +40,17 @@ function check() {
   // bot loop test
   // bot should complete one loop in approx 314 step
   reset();
-  for (let i = 0; i < 314; i++) update();
-  draw();
+  testloop();
+  function testloop() {
+    update();
+    draw();
+    if (itick < 314) {
+      setTimeout(testloop, 1);
+    } else {
+      assert(bot.energy > 9 && bot.energy < 50, 'final amount of energy collected');}
+  }
   assert(bot.energy > 9 && bot.energy < 50, 'final amount of energy collected');
 
-  var outArea = document.getElementById('out');
   outArea.textContent += ('DONE', true);
 
 }
@@ -60,13 +65,11 @@ function assert(test, str) {
 }
 
 function passed(str) {
-  var outArea = document.getElementById('out');
   outArea.textContent += (str + ' ... OK\n');
   return true;
 }
 
 function failed(str) {
-  var outArea = document.getElementById('out');
   outArea.textContent += (str + ' ... FAILED\n');
   return false;
 }

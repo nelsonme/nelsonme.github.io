@@ -5,10 +5,12 @@ var paused = false;
 var itick; // simulation clock
 var bot; // bot object
 var ticksPerSecond = 30;
+var outArea; // output text box
 
 function setup() {
   initCanvas('cnv1',400, 400)
   bot = new Bot(); // NEW CODE
+  outArea = document.getElementById('out');
   reset();
 }
 
