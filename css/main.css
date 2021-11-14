@@ -91,29 +91,24 @@ details li {
 }
 
 .outer-container {
+	width: 100%;
 	max-width: 900px;
 	text-align: center;
-	padding: 0 0.5em 1.5em;
 	margin: 0 auto;
+	background-color: #def;
 }
 
 .inner-container {
 	display: inline-block;
 	text-align: left; 
+	background-color: #fed;
 }
 
 .container {
+	width: 100%;
 	max-width: 900px;
-	padding: 0 0.5em 1.5em;
 	margin: 0 auto;
-}
-
-.container .map {
-	border: 1px solid #ccc;
-}
-
-.container .map:focus {
-	border-color: #999;
+	background-color: #dfe;
 }
 
 .nav {
@@ -161,7 +156,15 @@ details li {
 	background:#e8efe8;
 }
 
+  .mobile {
+		visibility: hidden;
+	}
+
 @media only screen and (hover: none) {
+
+	.mobile {
+		visibility: visible;
+	}
 
     /*
 	.logo {
