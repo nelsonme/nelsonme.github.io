@@ -63,5 +63,15 @@
     </ol>
 
   </div>
+  <script>
+    function getSpecs() {
+      var footer = document.getElementById("footer");
+      var textToAdd = document.createTextNode(`inner W/H = ${window.innerWidth}/${window.innerHeight}`); 
+      footer.innerHTML = "";
+      footer.appendChild(textToAdd);
+    }
+    getSpecs();
+    window.addEventListener('resize', getSpecs);
+  </script>
 </body>
 </html>
