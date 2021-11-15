@@ -36,26 +36,43 @@
     </li>
   </ul>
 
-  <div class="container">
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit,
-      sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-      Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi
-      ut aliquip ex ea commodo consequat. </p>
+  <div class="outer-container">
+  <div class="inner-container">
+    <p style="font-family: Arial">
+    One two three four five six seven eight nine ten.
+    Eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty.
+    Twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine. 
+    Thirty thirty-one thirty-two.
+    </p>
+    <p style="font-family: Helvetica">
+    One two three four five six seven eight nine ten.
+    Eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty.
+    Twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine. 
+    Thirty thirty-one thirty-two.
+    </p>
+    <p style="font-family: sans-serif">
+    One two three four five six seven eight nine ten.
+    Eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen twenty.
+    Twenty-one twenty-two twenty-three twenty-four twenty-five twenty-six twenty-seven twenty-eight twenty-nine. 
+    Thirty thirty-one thirty-two.
+    </span>
   </div>
-  <div id="mobile_test" class="outer-container">
+  </div>
+  <div id="mobile_test" class="outer-container center">
     <span class="mobile">--- using mobile css ---</span>
   </div>
   <div id="footer" class="outer-container">
   </div>
-<script>
-  function getSpecs() {
-    var footer = document.getElementById("footer");
-    var textToAdd = document.createTextNode(`inner W/H = ${window.innerWidth}/${window.innerHeight}`); 
-    footer.innerHTML = "";
-    footer.appendChild(textToAdd);
-  }
-  getSpecs();
-  window.addEventListener('resize', getSpecs);
-</script>
+  <script>
+    function getSpecs() {
+      var footer = document.getElementById("footer");
+      var textToAdd = document.createTextNode(`inner W/H = ${window.innerWidth}/${window.innerHeight}`);
+      footer.innerHTML = "";
+      footer.appendChild(textToAdd);
+    }
+    getSpecs();
+    window.addEventListener('resize', getSpecs);
+  </script>
 </body>
+
 </html>

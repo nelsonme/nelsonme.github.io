@@ -1,5 +1,6 @@
 html, body, input, select, button, textarea, table {
 	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+	font-size: 16px;
 	color: #555;
 }
 
@@ -90,12 +91,13 @@ details li {
 	float: right;
 }
 
-.outer-container {
+.container, .outer-container {
 	width: 100%;
-	max-width: 900px;
-	text-align: center;
+	max-width: 960px;
 	margin: 0 auto;
-	background-color: #def;
+	padding: 5px;
+	background-color: #cfe;
+	text-align: center;
 }
 
 .inner-container {
@@ -104,12 +106,6 @@ details li {
 	background-color: #fed;
 }
 
-.container {
-	width: 100%;
-	max-width: 900px;
-	margin: 0 auto;
-	background-color: #dfe;
-}
 
 .nav {
 	list-style: none;
