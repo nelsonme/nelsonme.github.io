@@ -4,11 +4,7 @@
 <head>
     <title>MCB419 - NelsonME</title>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/normalize.css" />
     <link rel="stylesheet" href="css/main.css" />
-    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,400italic,700,300' rel='stylesheet'
-        type='text/css'>
 </head>
 
 <body>
@@ -43,15 +39,24 @@
     <div class="outer-container">
         <div class="inner-container">
             <p>HW01 simple movement ...
-                <a href="mcb419/hw01_simple_movement/hw01_assignment.html">assignment</a>  ...
+                <a href="mcb419/hw01_simple_movement/hw01_assignment.html">assignment</a> ...
                 <a href="mcb419/hw01_simple_movement/hw01_solution.html">solution</a>
             </p>
             <p>HW02 simple foraging ...
-                <a href="mcb419/hw02_simple_foraging/hw02_assignment.html">assignment</a>  ...
+                <a href="mcb419/hw02_simple_foraging/hw02_assignment.html">assignment</a> ...
                 <a href="mcb419/hw02_simple_foraging/hw02_solution.html">solution</a>
             </p>
         </div>
     </div>
+    <script>
+        function getSpecs() {
+            var footer = document.getElementById("footer");
+            var textToAdd = document.createTextNode(`inner W/H = ${window.innerWidth}/${window.innerHeight}`);
+            footer.innerHTML = "";
+            footer.appendChild(textToAdd);
+        }
+        getSpecs();
+        window.addEventListener('resize', getSpecs);
+    </script>
 </body>
-
 </html>
