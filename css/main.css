@@ -166,8 +166,8 @@ details li {
 		visibility: visible;
 	}
 
-	html, body {
-		font-size: 24px;
+	html, body, .nav {
+		font-size: 36px;
 	}
 
 }
