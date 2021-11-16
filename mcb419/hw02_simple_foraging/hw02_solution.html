@@ -6,8 +6,8 @@
   <title>HW02 - solution</title>
   <link rel="stylesheet" href="../../css/main.css">
   <link rel="stylesheet" href="style.css">
-  <script src="https://nelsonme.github.io/libs/easy-math.js"></script>
-  <script src="https://nelsonme.github.io/libs/canvas.js"></script>
+  <script src="../../libs/easy-math.js"></script>
+  <script src="../../libs/canvas.js"></script>
   <script src="Bot.js"></script>
   <script src="Pellet.js"></script>
   <script src="sim.js"></script>
@@ -16,30 +16,32 @@
 
 <body onload="setup()">
   <div class="container main">
+    <h2>MCB 419 - HW02 - simple foraging</h2>
+    <p> This is the solution (<a href="hw02_assignment.html">link to assignment</a>).</p>
+    <p>
+      user-modified code:
+      <a target="_blank" href="Bot.js">Bot.js</a>,
+      <a target="_blank" href="Pellet.js">Pellet.js</a>,
+      <a target="_blank" href="sim.js">sim.js</a>
+      <br />
+      supporting code:
+      <a target="_blank" href="../../libs/canvas.js">canvas.js</a>,
+      <a target="_blank" href="../../libs/easy-math.js">easy-math.js</a>,
+      <a target="_blank" href="check.js">check.js</a>,
+      <a target="_blank" href="style.css">style.css</a>
+    </p>
+    <canvas id="cnv1" width="400" height="400"></canvas>
+    <br \>
+    <button id="reset" onclick="reset()">Reset</button>
+    <button id="run" onclick="run()">Run</button>
+    <button id="pause" onclick="pause()">Pause</button>
+    <br \>
+    <button id="check" onclick="check()">Check implementation</button>
+    <br \>
+    <textarea readonly id="out" rows="12" cols="60"></textarea>
+
+
     <div class="text-left">
-      <h2>MCB 419 - HW02 - simple foraging</h2>
-      <p> This is the solution. (<a href="hw02_assignment.html">link to assignment</a>)</p>
-      <p>
-        user-modified code:
-        <a target="_blank" href="Bot.js">Bot.js</a>,
-        <a target="_blank" href="Pellet.js">Pellet.js</a>,
-        <a target="_blank" href="sim.js">sim.js</a>
-        <br />
-        supporting code:
-        <a target="_blank" href="https://nelsonme.github.io/libs/canvas.js">canvas.js</a>,
-        <a target="_blank" href="https://nelsonme.github.io/libs/easy-math.js">easy-math.js</a>,
-        <a target="_blank" href="check.js">check.js</a>,
-        <a target="_blank" href="style.css">style.css</a>
-      </p>
-      <canvas id="cnv1" width="400" height="400"></canvas>
-      <br \>
-      <button id="reset" onclick="reset()">Reset</button>
-      <button id="run" onclick="run()">Run</button>
-      <button id="pause" onclick="pause()">Pause</button>
-      <br \>
-      <button id="check" onclick="check()">Check implementation</button>
-      <br \>
-      <textarea readonly id="out" rows="12" cols="60"></textarea>
       <h3>Questions
         <span class="user">(answer these by editing the index.html file before you submit)</span>
       </h3>

@@ -4,55 +4,68 @@
 <head>
   <title>js</title>
   <meta charset="utf-8" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
-  <link rel="stylesheet" href="https://nelsonme.github.io/css/main.css" />
+  <link rel="stylesheet" href="../../css/main.css" />
 </head>
 
 <body>
 
-  <div class="container">
-  <h1>MCB 419 - HW01 - simple movement</h1>
-<p>due Tue Jan 22, 2019, 9:00 PM</p>
-<p><a href="hw01_solution.html">link to the solution</a></p>
+  <div class="container main">
+    <h1>MCB 419 - HW01 - simple movement</h1>
+    <p>due Tue Jan 22, 2019, 9:00 PM</p>
+    <p>This is the assignment (<a href="hw01_solution.html">link to solution</a>).</p>
 
-<h2>Introduction</h2>
-<p>In this assignment you will create a single bot that moves around the arena in a circular path. The resulting simulation will look something like this:</p>
+    <div class="text-left">
+      <h2>Introduction</h2>
+      <p>In this assignment you will create a single bot that moves around the arena in a circular path. The resulting
+        simulation will look something like this:</p>
+    </div>
 
-<p><img src="hw01.gif" alt="hw01.gif" /></p>
+    <img class="block-center" src="hw01.gif" alt="hw01.gif" />
 
-<h2>Specifications</h2>
-<p>The arena is 400 x 400 pixels.<br />
-The bot is drawn as a yellow circle with a radius of 20 pixels.<br />
-The bot has a solid line indicating its heading direction.</p>
+    <div class="text-left">
+      <h2>Specifications</h2>
+      <p>The arena is 400 x 400 pixels.<br />
+        The bot is drawn as a yellow circle with a radius of 20 pixels.<br />
+        The bot has a solid line indicating its heading direction.</p>
 
-<p>The bot’s <em>initial</em> conditions:<br />
-<strong>x</strong>: 50 pixels from the right edge of the arena<br />
-<strong>y</strong>: half way down the arena<br />
-<strong>heading</strong>: facing the bottom of the arena</p>
+      <p>The bot’s <em>initial</em> conditions:<br />
+        <strong>x</strong>: 50 pixels from the right edge of the arena<br />
+        <strong>y</strong>: half way down the arena<br />
+        <strong>heading</strong>: facing the bottom of the arena
+      </p>
 
-<p>The bot’s movement:<br />
-<strong>speed</strong>: the bot moves at a constant speed of 3 pixels/tick<br />
-<strong>heading</strong>: on each tick, the heading should be incremented by a fixed amount,
-then the bot should be moved by 3 units in that direction. The resulting change in x and y position are given by:<br />
-dx = speed * cos(heading)<br />
-dy = speed * sin(heading) <br />
-<strong>trajectory</strong>: the bot should move along a circular path with a diameter of 300 pixels. This will be accomplished by incrementing the bot’s heading direction by a fixed amount on each tick. You will need to compute the value for the amount to increment the heading. To do so, consider the following:</p>
-<ul>
-  <li>what is the circumference of a cirlce with a diameter of 300 pixels?</li>
-  <li>if the bot moves a 3 pixels per tick, how many ticks are required to move along the full circumference of the circle?</li>
-  <li>when the bot completes the circle it’s heading will have gone through a change of 2π radians. Knowing the number of ticks required to complete the circle should let you calculate the change in heading per tick.</li>
-</ul>
+      <p>The bot’s movement:<br />
+        <strong>speed</strong>: the bot moves at a constant speed of 3 pixels/tick<br />
+        <strong>heading</strong>: on each tick, the heading should be incremented by a fixed amount,
+        then the bot should be moved by 3 units in that direction. The resulting change in x and y position are given
+        by:<br />
+        dx = speed * cos(heading)<br />
+        dy = speed * sin(heading) <br />
+        <strong>trajectory</strong>: the bot should move along a circular path with a diameter of 300 pixels. This will
+        be accomplished by incrementing the bot’s heading direction by a fixed amount on each tick. You will need to
+        compute the value for the amount to increment the heading. To do so, consider the following:
+      </p>
+      <ul>
+        <li>what is the circumference of a cirlce with a diameter of 300 pixels?</li>
+        <li>if the bot moves a 3 pixels per tick, how many ticks are required to move along the full circumference of
+          the circle?</li>
+        <li>when the bot completes the circle it’s heading will have gone through a change of 2π radians. Knowing the
+          number of ticks required to complete the circle should let you calculate the change in heading per tick.</li>
+      </ul>
 
-<h2>Instructions</h2>
-<ul>
-  <li><strong>Edit Bot.js</strong> you will need to provide code for reset(), update() and draw()</li>
-  <li><strong>Edit sketch.js</strong> you will need to create the bot and call the reset, update and draw methods at appropriate locations in the code</li>
-  <li><strong>Save</strong> your changes</li>
-  <li><strong>Repeat editing, debugging, saving</strong> until things are working properly</li>
-  <li><strong>Click “Check implementation” button</strong> to test your code</li>
-</ul>
+      <h2>Instructions</h2>
+      <ul>
+        <li><strong>Edit Bot.js</strong> you will need to provide code for reset(), update() and draw()</li>
+        <li><strong>Edit sim.js</strong> you will need to create the bot and call the reset, update and draw methods
+          at appropriate locations in the code</li>
+        <li><strong>Save</strong> your changes</li>
+        <li><strong>Repeat editing, debugging, saving</strong> until things are working properly</li>
+        <li><strong>Click “Check implementation” button</strong> to test your code</li>
+      </ul>
 
-<h2>– End of assignment –</h2>  </div>
+      <h2>– End of assignment –</h2>
+    </div>
+  </div>
 </body>
 
 </html>
