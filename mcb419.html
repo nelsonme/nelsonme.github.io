@@ -9,6 +9,7 @@
 
 <body>
 
+    <div class="container text-center">
     <img class="logo" src="images/logo.png" />
     <div class="tagline">a personal sandbox</div>
 
@@ -36,8 +37,7 @@
         </li>
     </ul>
 
-    <div class="outer-container">
-        <div class="inner-container">
+        <div class="text-left">
             <p>HW01 simple movement ...
                 <a href="mcb419/hw01_simple_movement/hw01_assignment.html">assignment</a> ...
                 <a href="mcb419/hw01_simple_movement/hw01_solution.html">solution</a>
@@ -53,16 +53,6 @@
     </div>
     <div id="footer" class="outer-container">
     </div>
-    <script>
-        function getSpecs() {
-            var footer = document.getElementById("footer");
-            var textToAdd = document.createTextNode(`inner W/H = ${window.innerWidth}/${window.innerHeight}`);
-            footer.innerHTML = "";
-            footer.appendChild(textToAdd);
-        }
-        getSpecs();
-        window.addEventListener('resize', getSpecs);
-    </script>
 </body>
 
 </html>

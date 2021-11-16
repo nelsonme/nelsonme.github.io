@@ -4,8 +4,6 @@
 <head>
   <title>js</title>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="css/normalize.css" />
   <link rel="stylesheet" href="css/main.css" />
   <script src="https://nelsonme.github.io/libs/rand.js"></script>
   <script src="https://nelsonme.github.io/libs/util.js"></script>
@@ -30,7 +28,7 @@
       <a href="maps.html">maps</a>
     </li>
     <li>
-        <a href="mcb419.html">mcb419</a>
+      <a href="mcb419.html">mcb419</a>
     </li>
     <li>
       <a href="scratch.html">scratch</a>
@@ -41,123 +39,127 @@
   </ul>
 
 
-  <div class="container">
-    <p>My javascript libraries; include in html header as:</p>
-    <pre><code> &lt;script src="https://nelsonme.github.io/libs/util.js"&gt;&lt;/script&gt;
+  <div class="outer-container">
+    <div class="inner-container">
+      <p>My javascript libraries; include in html header as:</p>
+      <pre><code> &lt;script src="https://nelsonme.github.io/libs/util.js"&gt;&lt;/script&gt;
 </code></pre>
-    <p> Expand the accordion sections below for brief documentation:</p>
-    <!-- mplot.js -->
-    <details>
-      <summary>mplot.js - matlab-like plotting capabilities
-        <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/mplot.js">source</a>)</span>
-      </summary>
-      <ul>
-        <li><code>figure(num, [opts])</code> set current figure, creates it if it does not exist (num=1,2,…)<br /></li>
+      <p> Expand the accordion sections below for brief documentation:</p>
+      <!-- mplot.js -->
+      <details>
+        <summary>mplot.js - matlab-like plotting capabilities
+          <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/mplot.js">source</a>)</span>
+        </summary>
         <ul>
-          <li>looks for (or creates) &lt;canvas id=”fig1”&gt; tag in html<br /></li>
-          <li>example opts: {width: 600px, height: 400px, bgcolor: ‘lightCyan’}</li>
-        </ul>
-        <li><code>gca</code> global variable, current axis (javascript object)</li>
-        <li><code>gcf</code> global variable, fig id (string matching id of canvas: “fig1”, “fig2”, etc.)</li>
-        <li> <code>plot([xdata,], ydata, [style])</code> - plots the data<br />
+          <li><code>figure(num, [opts])</code> set current figure, creates it if it does not exist (num=1,2,…)<br />
+          </li>
           <ul>
-            <li>style examples: ‘b-‘ (blue line), ‘ro-‘ (red line with open points), ‘k|’ (black bars)</li>
+            <li>looks for (or creates) &lt;canvas id=”fig1”&gt; tag in html<br /></li>
+            <li>example opts: {width: 600px, height: 400px, bgcolor: ‘lightCyan’}</li>
           </ul>
-        </li>
-        <li><code>xlabel, ylabel(text)</code> dd axis labels</li>
-        <li><code>xlim, ylim(min, max)</code> set axis limits; also <code>ylim([min, max])</code></li>
-        <li><code>xticks, yticks(min, max, step)</code> sets ticks and turns off autoranging</li>
-        <li><code>gca.onclick</code> method for click functionality</li>
-      </ul>
-    </details>
-    <!-- rand.js -->
-    <details>
-      <summary>rand.js - random number generation
-        <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/rand.js">source</a>)</span>
-      </summary>
-      <ul>
-
-        <li>uses <a target="_blank" href="https://en.wikipedia.org/wiki/Linear_congruential_generator">LCG algorithm</a>
-          if user specifies a seed,
-          otherwise uses <code>Math.random()</code> because it is faster</li>
-        <li><code>rand()</code> - uniform random number in [0,1)</li>
-        <li><code>randa(array)</code> - returns a random element from the array</li>
-        <li><code>randf([a],[b])</code> - uniform random float</li>
+          <li><code>gca</code> global variable, current axis (javascript object)</li>
+          <li><code>gcf</code> global variable, fig id (string matching id of canvas: “fig1”, “fig2”, etc.)</li>
+          <li> <code>plot([xdata,], ydata, [style])</code> - plots the data<br />
+            <ul>
+              <li>style examples: ‘b-‘ (blue line), ‘ro-‘ (red line with open points), ‘k|’ (black bars)</li>
+            </ul>
+          </li>
+          <li><code>xlabel, ylabel(text)</code> dd axis labels</li>
+          <li><code>xlim, ylim(min, max)</code> set axis limits; also <code>ylim([min, max])</code></li>
+          <li><code>xticks, yticks(min, max, step)</code> sets ticks and turns off autoranging</li>
+          <li><code>gca.onclick</code> method for click functionality</li>
+        </ul>
+      </details>
+      <!-- rand.js -->
+      <details>
+        <summary>rand.js - random number generation
+          <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/rand.js">source</a>)</span>
+        </summary>
         <ul>
-          <li><code>randf()</code> - random float in <code>[0,1)</code>; same as calling <code>rand()</code></li>
-          <li><code>randf(a)</code> - random float in <code>[0,a)</code></li>
-          <li><code>randf(a,b)</code> - random float in <code>[a,b)</code></li>
+
+          <li>uses <a target="_blank" href="https://en.wikipedia.org/wiki/Linear_congruential_generator">LCG
+              algorithm</a>
+            if user specifies a seed,
+            otherwise uses <code>Math.random()</code> because it is faster</li>
+          <li><code>rand()</code> - uniform random number in [0,1)</li>
+          <li><code>randa(array)</code> - returns a random element from the array</li>
+          <li><code>randf([a],[b])</code> - uniform random float</li>
+          <ul>
+            <li><code>randf()</code> - random float in <code>[0,1)</code>; same as calling <code>rand()</code></li>
+            <li><code>randf(a)</code> - random float in <code>[0,a)</code></li>
+            <li><code>randf(a,b)</code> - random float in <code>[a,b)</code></li>
+          </ul>
+          <li><code>randi([a],[b])</code> - returns random integer</li>
+          <ul>
+            <li><code>randi()</code> returns 0 or 1</li>
+            <li><code>randi(a)</code> returns random integer in <code>[0,a)</code></li>
+            <li><code>randi(a,b)</code> returns random integer in <code>[a,b)</code></li>
+          </ul>
+          <li><code>randn([std=1])</code> - normally distributed random values with zero mean and specified std</li>
+          <li><code>seed(val)</code> - sets the seed and starts using LCG algorithm</li>
+          <li><code>seed()</code> - returns the current seed</li>
+          <li><code>unseed()</code> - switches back to unseeded mode, starts using <code>Math.random()</code></li>
+          <li><code>isSeeded()</code> - returns seeded status (true/false)
+          <li>
         </ul>
-        <li><code>randi([a],[b])</code> - returns random integer</li>
+      </details>
+
+      <!-- util.js -->
+      <details>
+        <summary>
+          util.js - utility functions for arrays
+          <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/util.js">source</a>)</span>
+        </summary>
+
         <ul>
-          <li><code>randi()</code> returns 0 or 1</li>
-          <li><code>randi(a)</code> returns random integer in <code>[0,a)</code></li>
-          <li><code>randi(a,b)</code> returns random integer in <code>[a,b)</code></li>
+          <li><code>amin(array)</code> - min value of array</li>
+          <li><code>amax(array)</code> - max value of array</li>
+          <li><code>amean(array)</code> - mean value of array</li>
+          <li><code>astd(array)</code> - standard deviation of array</li>
+          <li><code>aequals(a, b)</code> - returns true if arrays a and b are equal
+            <ul>
+              <li>only works if all elements are primitives (numbers, strings, booleans)</li>
+            </ul>
+          <li><code>arange([start,] stop, [step=1])</code> - returns an array of evenly spaced values
+            <ul>
+              <li>the stop point is NOT included</li>
+              <li>arange(0, 3, 0.5) returns [0, 0.5, 1.0, 1.5, 2.0, 2.5]</li>
+            </ul>
+          </li>
+          <li><code>hist(array, bins)</code> - computes histogram counts in specified bins
+            <ul>
+              <li>bins is an array of lower bin edges, equally spaced</li>
+              <li>returns <code>{counts, underflow, overflow}</code>,
+                <code>counts</code> is same size as bins, <code>underflow</code> and <code>overflow</code> are scalars
+              </li>
+            </ul>
+          </li>
+          <li><code>linspace(start, stop, [N=20], [endpt=true])</code> - returns an array of N evenly spaced numbers
+            <ul>
+              <li>the stop point IS included by default (controlled by endpt flag)</li>
+              <li>(useful for generating exactly N bins for <code>hist</code>)</li>
+            </ul>
+          </li>
         </ul>
-        <li><code>randn([std=1])</code> - normally distributed random values with zero mean and specified std</li>
-        <li><code>seed(val)</code> - sets the seed and starts using LCG algorithm</li>
-        <li><code>seed()</code> - returns the current seed</li>
-        <li><code>unseed()</code> - switches back to unseeded mode, starts using <code>Math.random()</code></li>
-        <li><code>isSeeded()</code> - returns seeded status (true/false)
-        <li>
-      </ul>
-    </details>
+      </details>
 
-    <!-- util.js -->
-    <details>
-      <summary>
-        util.js - utility functions for arrays
-        <span class="right">(<a target="_blank" href="https://nelsonme.github.io/libs/util.js">source</a>)</span>
-      </summary>
-
-      <ul>
-        <li><code>amin(array)</code> - min value of array</li>
-        <li><code>amax(array)</code> - max value of array</li>
-        <li><code>amean(array)</code> - mean value of array</li>
-        <li><code>astd(array)</code> - standard deviation of array</li>
-        <li><code>aequals(a, b)</code> - returns true if arrays a and b are equal
-          <ul>
-            <li>only works if all elements are primitives (numbers, strings, booleans)</li>
-          </ul>
-        <li><code>arange([start,] stop, [step=1])</code> - returns an array of evenly spaced values
-          <ul>
-            <li>the stop point is NOT included</li>
-            <li>arange(0, 3, 0.5) returns [0, 0.5, 1.0, 1.5, 2.0, 2.5]</li>
-          </ul>
-        </li>
-        <li><code>hist(array, bins)</code> - computes histogram counts in specified bins
-          <ul>
-            <li>bins is an array of lower bin edges, equally spaced</li>
-            <li>returns <code>{counts, underflow, overflow}</code>,
-              <code>counts</code> is same size as bins, <code>underflow</code> and <code>overflow</code> are scalars
-            </li>
-          </ul>
-        </li>
-        <li><code>linspace(start, stop, [N=20], [endpt=true])</code> - returns an array of N evenly spaced numbers
-          <ul>
-            <li>the stop point IS included by default (controlled by endpt flag)</li>
-            <li>(useful for generating exactly N bins for <code>hist</code>)</li>
-          </ul>
-        </li>
-      </ul>
-    </details>
-
-    <!-- UNIT TESTS-->
-    <details>
-      <summary>Demos and unit tests</summary>
-      <ul>
-        <li>
-          <a target="_blank" href="libs/mplot_demo.html">mplot: demo plots</a>
-        <li>
-          <a target="_blank" href="libs/test_rand.html">rand: unit tests</a>
-        </li>
-        <li>
-          <a target="_blank" href="libs/test_util.html">util: unit tests</a>
-        </li>
-      </ul>
-    </details>
+      <!-- UNIT TESTS-->
+      <details>
+        <summary>Demos and unit tests</summary>
+        <ul>
+          <li>
+            <a target="_blank" href="libs/mplot_demo.html">mplot: demo plots</a>
+          <li>
+            <a target="_blank" href="libs/test_rand.html">rand: unit tests</a>
+          </li>
+          <li>
+            <a target="_blank" href="libs/test_util.html">util: unit tests</a>
+          </li>
+        </ul>
+      </details>
 
 
+    </div>
   </div>
 </body>
 

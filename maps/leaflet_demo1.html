@@ -4,6 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <title>leaflet demo1</title>
+  <link rel="stylesheet" href="../css/main.css" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
 </head>
@@ -13,18 +14,31 @@
     eval(code)
   }
 </script>
+<style>
+  .map {
+    min-width: 400px;
+    min-height: 400px;
+  }
+</style>
+
 
 <body onload="eval_code()">
 
-  <div id="mapDiv" style="height:400px; width:600px"></div>
-
+  <div class="outer-container">
+  <div class="inner-container">
+    <!--
+  <div id="mapDiv" class="map" style="width:640px; height: 480px"></div>
+  -->
+  <div id="myMap" class="map"></div>
   <code id="myCode"> <pre>
 // Simple leaflet map
-var myMap = L.map("mapDiv", {center: [40.116, -88.243], zoom:12});
+var myMap = L.map("myMap", {center: [40.116, -88.243], zoom:12});
 var myLayer = L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png");
 myLayer.addTo(myMap);
    </pre></code>
 
+  </div>
+  </div>
 </body>
 
 </html>
