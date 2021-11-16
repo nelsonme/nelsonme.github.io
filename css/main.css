@@ -34,6 +34,7 @@ li {
 
 details {
 	margin-bottom: 0.5em;
+	width: 100%;
 }
 
 details code {
@@ -66,6 +67,15 @@ details li {
 	width: 30%;
 }
 
+#tagline {
+	display: block;
+	font-weight: 200;
+	font-size: 1.5em;
+	padding: 0.5em;
+	color: #333;
+	text-align: center;
+}
+
 #nav {
 	list-style: none;
 	text-align: center;
@@ -83,14 +93,6 @@ details li {
 	color: #555;
 }
 
-#tagline {
-	display: block;
-	font-weight: 200;
-	font-size: 1.5em;
-	padding: 0.5em;
-	color: #333;
-	text-align: center;
-}
 
 /* classes */
 
@@ -104,7 +106,8 @@ details li {
 }
 
 .main {
-	height: 95vh;
+	min-height: 100vh;
+	overflow: auto:
 }
 
 .inner-container, .text-left {

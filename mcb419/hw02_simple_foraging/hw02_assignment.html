@@ -10,54 +10,58 @@
 
 <body>
 
-  <div class="container">
-  <h1>MCB 419 - HW02 - simple foraging</h1>
-  <p>due Tue Jan 29, 2019, 9:00 PM</p>
-  <p><a href="hw01_solution.html">link to the solution</a></p>
+  <div class="container main">
 
-  <h2>Introduction</h2>
-  <p>This assignment builds on last week’s homework in which you
-    created a bot that moves around the arena in a circular path.
-    This week you will add 100 ‘food’ pellets to the arena,
-    which the bot will consume as it moves in its circular trajectory.
-    The resulting simulation will look something like this:</p>
+    <h1>MCB 419 - HW02 - simple foraging</h1>
+    <p>due Tue Jan 29, 2019, 9:00 PM</p>
+    <p><a href="hw01_solution.html">link to the solution</a></p>
 
-  <p><img src="hw02.gif" alt="hw02.gif" /></p>
+    <div class="text-left">
+    <h2>Introduction</h2>
+    <p>
+      This assignment builds on last week’s homework in which you
+      created a bot that moves around the arena in a circular path.
+      This week you will add 100 ‘food’ pellets to the arena,
+      which the bot will consume as it moves in its circular trajectory.
+      The resulting simulation will look something like this:</p>
 
-  <h2 id="specifications">Specifications</h2>
-  <p>The arena, bot specs, and bot trajectory are as specified in <a href="/hw/hw01.html">hw01</a>.</p>
+    <p><img src="hw02.gif" alt="hw02.gif" /></p>
 
-  <p>New features that you need to add:</p>
-  <ul>
-    <li>bot has a new field called ‘energy’</li>
-    <li>bot energy in initialized to 0 on reset</li>
-    <li>100 pellets scattered randomly in the arena</li>
-    <li>pellet positions are (re)randomized on reset</li>
-    <li>pellets are drawn as dark green dots with a radius of 3 pixels</li>
-    <li>bot has a new method called ‘consume’</li>
-    <li>pellets are consumed if bot body overlaps pellet center point</li>
-    <li>consuming a pellet increases the bot energy by 1</li>
-    <li>when consumed, pellet is moved to a new random location<br />
-      (thus there are always 100 pellets in the arena)</li>
-    <li>add a text display of bot energy in the upper left corner<br />
-      (below the tick display)</li>
-  </ul>
+    <h2 id="specifications">Specifications</h2>
+    <p>The arena, bot specs, and bot trajectory are as specified in <a href="/hw/hw01.html">hw01</a>.</p>
 
-  <h2 id="instructions">Instructions</h2>
-  <ul>
-    <li><strong>open</strong> the <a href="https://editor.p5js.org/mcb419/sketches/rk3b0gBME">HW02 template file</a>
-      (right-click to open in a new tab or window)</li>
-    <li><strong>login</strong> to the p5js editor (so you can save changes)</li>
-    <li><strong>duplicate</strong> the template (you now have a copy that you can edit and save)</li>
-    <li><strong>edit Bot.js and sketch.js</strong> as appropriate</li>
-    <li><strong>save, run, debug, edit, repeat</strong> until things are working properly</li>
-    <li><strong>use “Check implementation” button</strong> to help test your code</li>
-    <li><strong>answer the questions</strong> in the index.html file</li>
-    <li><strong>SAVE YOUR PROJECT in the p5js editor (this step is important)!</strong></li>
-    <li><strong>submit the url</strong> to mcb419@gmail.com with <strong>subject: HW02</strong></li>
-  </ul>
+    <p>New features that you need to add:</p>
+    <ul>
+      <li>bot has a new field called ‘energy’</li>
+      <li>bot energy in initialized to 0 on reset</li>
+      <li>100 pellets scattered randomly in the arena</li>
+      <li>pellet positions are (re)randomized on reset</li>
+      <li>pellets are drawn as dark green dots with a radius of 3 pixels</li>
+      <li>bot has a new method called ‘consume’</li>
+      <li>pellets are consumed if bot body overlaps pellet center point</li>
+      <li>consuming a pellet increases the bot energy by 1</li>
+      <li>when consumed, pellet is moved to a new random location<br />
+        (thus there are always 100 pellets in the arena)</li>
+      <li>add a text display of bot energy in the upper left corner<br />
+        (below the tick display)</li>
+    </ul>
 
-  <h2 id="-end-of-assignment-">– End of assignment –</h2>
+    <h2 id="instructions">Instructions</h2>
+    <ul>
+      <li><strong>open</strong> the <a href="https://editor.p5js.org/mcb419/sketches/rk3b0gBME">HW02 template file</a>
+        (right-click to open in a new tab or window)</li>
+      <li><strong>login</strong> to the p5js editor (so you can save changes)</li>
+      <li><strong>duplicate</strong> the template (you now have a copy that you can edit and save)</li>
+      <li><strong>edit Bot.js and sketch.js</strong> as appropriate</li>
+      <li><strong>save, run, debug, edit, repeat</strong> until things are working properly</li>
+      <li><strong>use “Check implementation” button</strong> to help test your code</li>
+      <li><strong>answer the questions</strong> in the index.html file</li>
+      <li><strong>SAVE YOUR PROJECT in the p5js editor (this step is important)!</strong></li>
+      <li><strong>submit the url</strong> to mcb419@gmail.com with <strong>subject: HW02</strong></li>
+    </ul>
+
+    <h2 id="-end-of-assignment-">– End of assignment –</h2>
+  </div>
   </div>
 </body>
 
