@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Word Filter</title>
+  <script src="words-usa-10k.js"></script>
+  <style>
+    #log {
+      width: 600px;
+      height: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <textarea readonly id='log'></textarea>
+  <script>
+    const id = document.getElementById('log');
+    var wlist = words.filter(x => x.length === 5);
+
+    var ooxxo = []
+    var ooxox = []
+    var oooxx = []
+
+    for (let i=0; i<wlist.length; i++){
+      let w = wlist[i];
+      if (w[2] == w[3])ooxxo.push(w);
+      if (w[2] == w[4])ooxox.push(w);
+      if (w[3] == w[4])oooxx.push(w);
+    }
+    console.log(ooxxo)
+    console.log(ooxox)
+    console.log(oooxx)
+    
+  </script>
+</body>
+
+</html>

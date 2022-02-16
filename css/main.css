@@ -27,16 +27,12 @@ button {
 }
 
 details {
+	display: inline-block;
 	margin-bottom: 0.5em;
 	width: 100%;
 }
 
-details code {
-	font-size: 1.2em;
-}
-
 details summary {
-	font-size: 1.2em;
 	background-color: gainsboro;
 	padding: 0.2em 0.5em;
 }
@@ -50,6 +46,7 @@ details li {
 	list-style-type: none;
 	margin-top: 0.2em;
 	margin-bottom: 0.2em;
+	font-size: 0.9em;
 }
 
 li {
