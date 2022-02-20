@@ -88,13 +88,14 @@ function processKey() {
 
 function processInput(e) {
     if (gameOver) return; 
+        
 
     // alert(e.code);
     if ("KeyA" <= e.code && e.code <= "KeyZ") {
         if (col < width) {
             let currTile = document.getElementById(row.toString() + '-' + col.toString());
             if (currTile.innerText == "") {
-                currTile.innerText = e.code[3];
+                currTile.innerText = e.code[3]; // e.code = "KeyA" e.code[3] = "A"
                 col += 1;
             }
         }
@@ -113,7 +114,7 @@ function processInput(e) {
 
     if (!gameOver && row == height) {
         gameOver = true;
-        document.getElementById("answer").innerText = word;
+        document.getElementById("answer").innerText = "The word was " + word;
     }
 }
 
@@ -121,15 +122,14 @@ function update() {
     let guess = "";
     document.getElementById("answer").innerText = "";
 
-    //string up the guesses into the word
+    //concat the guess letters into the guess word
     for (let c = 0; c < width; c++) {
         let currTile = document.getElementById(row.toString() + '-' + c.toString());
         let letter = currTile.innerText;
         guess += letter;
     }
 
-    guess = guess.toLowerCase(); //case sensitive
-    console.log(guess);
+    guess = guess.toLowerCase(); // (guessList is all lowercase)
 
     if (!guessList.includes(guess)) {
         document.getElementById("answer").innerText = "Not in word list";
@@ -151,9 +151,7 @@ function update() {
         }
     }
 
-    console.log(letterCount);
-
-    //first iteration, check all the correct ones first
+    //first iteration, check for correct letters first
     for (let c = 0; c < width; c++) {
         let currTile = document.getElementById(row.toString() + '-' + c.toString());
         let letter = currTile.innerText;
@@ -162,28 +160,29 @@ function update() {
         if (word[c] == letter) {
             currTile.classList.add("correct");
 
+            // update the keyboard to show status
             let keyTile = document.getElementById("Key" + letter);
             keyTile.classList.remove("present");
             keyTile.classList.add("correct");
 
             correct += 1;
-            letterCount[letter] -= 1; //deduct the letter count
+            letterCount[letter] -= 1; //deduct one from letter count
         }
 
         if (correct == width) {
             gameOver = true;
+            document.getElementById("answer").innerText = "Congrats!";
         }
     }
 
-    console.log(letterCount);
-    //go again and mark which ones are present but in wrong position
+    //second iteration, mark letters that are present but in wrong position
     for (let c = 0; c < width; c++) {
         let currTile = document.getElementById(row.toString() + '-' + c.toString());
         let letter = currTile.innerText;
 
         // skip the letter if it has been marked correct
         if (!currTile.classList.contains("correct")) {
-            //Is it in the word?         //make sure we don't double count
+            //Is it in the word?         
             if (word.includes(letter) && letterCount[letter] > 0) {
                 currTile.classList.add("present");
                 
