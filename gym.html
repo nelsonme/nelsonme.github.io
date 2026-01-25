@@ -140,7 +140,7 @@ let toastTimer = null;
 
 function todayKey() {
   const d = new Date();
-  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
+  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
 }
 
 const storageKey = "gymData";
@@ -148,9 +148,8 @@ const data = JSON.parse(localStorage.getItem(storageKey) || "{}");
 const today = todayKey();
 data[today] ??= {};
 
-function save() {
-  localStorage.setItem(storageKey, JSON.stringify(data));
-}
+// --- draft state (THIS IS THE FIX) ---
+const draft = {};
 
 function lastWorkout(ex) {
   const days = Object.keys(data).filter(d => d !== today).sort().reverse();
@@ -160,16 +159,27 @@ function lastWorkout(ex) {
   return [];
 }
 
+function initDraft(ex) {
+  if (draft[ex]) return;
+  const last = lastWorkout(ex);
+  draft[ex] = {
+    weight: last.at(-1)?.weight ?? 50,
+    reps: last.at(-1)?.reps ?? 12
+  };
+}
+
+function save() {
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
+
 function render() {
   const app = document.getElementById("app");
   app.innerHTML = "";
 
   EXERCISES.forEach(ex => {
+    initDraft(ex);
     const sets = data[today][ex] || [];
     const last = lastWorkout(ex);
-
-    let weight = sets.at(-1)?.weight ?? last.at(-1)?.weight ?? 50;
-    let reps   = sets.at(-1)?.reps   ?? last.at(-1)?.reps   ?? 12;
 
     const card = document.createElement("div");
     card.className = "card";
@@ -179,17 +189,17 @@ function render() {
       <div class="last">Last: ${last.map(s => `${s.reps}×${s.weight}`).join(", ") || "—"}</div>
 
       <div class="row">
-        <button onclick="adjust('${ex}', 'weight', -1)">−</button>
-        <div class="value">${weight} lb</div>
-        <button onclick="adjust('${ex}', 'weight', 1)">+</button>
+        <button onclick="adjust('${ex}','weight',-1)">−</button>
+        <div class="value">${draft[ex].weight} lb</div>
+        <button onclick="adjust('${ex}','weight',1)">+</button>
 
         <button class="add-set" onclick="addSet('${ex}')">Add Set</button>
       </div>
 
       <div class="row">
-        <button onclick="adjust('${ex}', 'reps', -1)">−</button>
-        <div class="value">${reps} reps</div>
-        <button onclick="adjust('${ex}', 'reps', 1)">+</button>
+        <button onclick="adjust('${ex}','reps',-1)">−</button>
+        <div class="value">${draft[ex].reps} reps</div>
+        <button onclick="adjust('${ex}','reps',1)">+</button>
       </div>
 
       <div class="set-list">
@@ -197,41 +207,26 @@ function render() {
       </div>
     `;
 
-    card.dataset.weight = weight;
-    card.dataset.reps = reps;
     app.appendChild(card);
   });
 }
 
 function adjust(ex, field, dir) {
-  const card = [...document.querySelectorAll(".card")]
-    .find(c => c.querySelector(".title").textContent === ex);
-
-  let value = Number(card.dataset[field]);
-  if (field === "weight") value += dir * WEIGHT_STEP;
-  if (field === "reps") value += dir;
-
-  if (field === "weight") value = Math.max(5, value);
-  if (field === "reps") value = Math.max(1, value);
-
-  card.dataset[field] = value;
+  if (field === "weight") {
+    draft[ex].weight = Math.max(5, draft[ex].weight + dir * WEIGHT_STEP);
+  } else {
+    draft[ex].reps = Math.max(1, draft[ex].reps + dir);
+  }
   render();
 }
 
 function addSet(ex) {
-  const card = [...document.querySelectorAll(".card")]
-    .find(c => c.querySelector(".title").textContent === ex);
-
-  const set = {
-    weight: Number(card.dataset.weight),
-    reps: Number(card.dataset.reps)
-  };
-
   data[today][ex] ??= [];
+  const set = { ...draft[ex] };
   data[today][ex].push(set);
   save();
 
-  lastAction = { ex, set };
+  lastAction = { ex };
   showToast("Set added");
   render();
 }
@@ -249,15 +244,13 @@ function undoLast() {
 function showToast(text) {
   const toast = document.getElementById("toast");
   document.getElementById("toastText").textContent = text;
-
   toast.classList.add("show");
   clearTimeout(toastTimer);
   toastTimer = setTimeout(hideToast, DISMISS_MS);
 }
 
 function hideToast() {
-  const toast = document.getElementById("toast");
-  toast.classList.remove("show");
+  document.getElementById("toast").classList.remove("show");
   lastAction = null;
 }
 
