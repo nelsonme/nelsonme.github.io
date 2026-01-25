@@ -3,46 +3,42 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Gym Circuit</title>
+<title>Gym Tracker</title>
+
 <style>
   body {
-    font-family: system-ui, sans-serif;
-    background: #111;
-    color: #eee;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #0b0b0b;
+    color: #f0f0f0;
     margin: 0;
     padding: 12px;
   }
 
-  .exercise {
-    border: 1px solid #333;
-    border-radius: 10px;
-    padding: 10px;
-    margin-bottom: 10px;
-  :  background: #1a1a1a;
-    display: grid;
-    grid-template-columns: 1fr 110px;
-    column-gap: 10px;
+  h1 {
+    font-size: 18px;
+    margin-bottom: 12px;
   }
 
-  .actions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    justify-content: center;
+  .card {
+    background: #161616;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
   }
 
-  .name {
-    font-size: 13px;
-    opacity: 0.75;
+  .title {
+    font-size: 14px;
+    opacity: 0.9;
   }
 
   .last {
     font-size: 12px;
-    opacity: 0.55;
-    margin-bottom: 6px;
+    opacity: 0.5;
+    margin-bottom: 8px;
   }
 
-  .controls {
+  .row {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -50,81 +46,118 @@
   }
 
   button {
-    font-size: 16px;
-    padding: 6px 10px;
-    border-radius: 6px;
+    background: #2a2a2a;
+    color: #fff;
     border: none;
-    background: #333;
-    color: #eee;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
   }
 
-  .add {
-    background: #3a6;
+  button:active {
+    background: #3a3a3a;
+  }
+
+  .value {
+    min-width: 80px;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .add-set {
+    background: #0aa95c;
     color: #000;
-    font-size: 14px;
-    padding: 10px 8px;
+    font-weight: 600;
+    width: 110px;
+    height: 44px;
+    margin-left: auto;
+    border-radius: 12px;
   }
 
-  .undo {
-    background: #444;
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-  
-  .sets {
+  .set-list {
     font-size: 13px;
-    margin-top: 4px;
+    opacity: 0.8;
+    margin-top: 6px;
   }
 
-  .motivation {
-    font-size: 12px;
-    color: #7f7;
-    margin-top: 2px;
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2a2a;
+    padding: 10px 14px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+
+  .toast.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .toast button {
+    width: auto;
+    height: auto;
+    padding: 4px 10px;
+    font-size: 13px;
+    background: #444;
   }
 </style>
 </head>
+
 <body>
 
+<h1>Workout</h1>
 <div id="app"></div>
+
+<div id="toast" class="toast">
+  <span id="toastText">Set added</span>
+  <button onclick="undoLast()">Undo</button>
+</div>
 
 <script>
 const EXERCISES = [
   "Leg Press", "Leg Curl", "Leg Extension",
-  "Bicep Curl", "Tricep Extension", "Shoulder Press", 
+  "Bicep Curl", "Tricep Extension", "Shoulder Press",
   "Chest Press", "Lat Pulldown", "Machine Row",
   "Abdominal Curl"
 ];
 
-function localDateString() {
+const WEIGHT_STEP = 5;
+const DISMISS_MS = 5000;
+
+let lastAction = null;
+let toastTimer = null;
+
+function todayKey() {
   const d = new Date();
-  return d.getFullYear() + "-" +
-         String(d.getMonth()+1).padStart(2,"0") + "-" +
-         String(d.getDate()).padStart(2,"0");
+  return d.getFullYear() + "-" + (d.getMonth()+1) + "-" + d.getDate();
 }
 
-const today = localDateString();
-const data = JSON.parse(localStorage.getItem("gymData") || "{}");
-data[today] = data[today] || [];
+const storageKey = "gymData";
+const data = JSON.parse(localStorage.getItem(storageKey) || "{}");
+const today = todayKey();
+data[today] ??= {};
+
+function save() {
+  localStorage.setItem(storageKey, JSON.stringify(data));
+}
 
 function lastWorkout(ex) {
-  const dates = Object.keys(data).filter(d => d !== today).sort().reverse();
-  for (const d of dates) {
-    const sets = data[d].filter(s => s.exercise === ex);
-    if (sets.length) return sets;
+  const days = Object.keys(data).filter(d => d !== today).sort().reverse();
+  for (const d of days) {
+    if (data[d][ex]?.length) return data[d][ex];
   }
   return [];
-}
-
-function bestStats(ex) {
-  let maxWeight = 0;
-  let maxVolume = 0;
-  Object.values(data).flat().forEach(s => {
-    if (s.exercise === ex) {
-      maxWeight = Math.max(maxWeight, s.weight);
-      maxVolume = Math.max(maxVolume, s.weight * s.reps);
-    }
-  });
-  return { maxWeight, maxVolume };
 }
 
 function render() {
@@ -132,102 +165,104 @@ function render() {
   app.innerHTML = "";
 
   EXERCISES.forEach(ex => {
+    const sets = data[today][ex] || [];
     const last = lastWorkout(ex);
-    const lastText = last.map(s => `${s.reps}×${s.weight}`).join(", ") || "—";
 
-    let weight = last[0]?.weight || 50;
-    let reps = last[0]?.reps || 12;
+    let weight = sets.at(-1)?.weight ?? last.at(-1)?.weight ?? 50;
+    let reps   = sets.at(-1)?.reps   ?? last.at(-1)?.reps   ?? 12;
 
     const card = document.createElement("div");
-    card.className = "exercise";
+    card.className = "card";
 
     card.innerHTML = `
-      <div>
-        <div class="name">${ex}</div>
-        <div class="last">Last: ${lastText}</div>
+      <div class="title">${ex}</div>
+      <div class="last">Last: ${last.map(s => `${s.reps}×${s.weight}`).join(", ") || "—"}</div>
 
-        <div class="controls">
-          <button class="wminus">−</button>
-          <div>${weight} lb</div>
-          <button class="wplus">+</button>
-        </div>
+      <div class="row">
+        <button onclick="adjust('${ex}', 'weight', -1)">−</button>
+        <div class="value">${weight} lb</div>
+        <button onclick="adjust('${ex}', 'weight', 1)">+</button>
 
-        <div class="controls">
-          <button class="rminus">−</button>
-          <div>${reps} reps</div>
-          <button class="rplus">+</button>
-        </div>
-
-        <div class="sets"></div>
-        <div class="motivation"></div>
+        <button class="add-set" onclick="addSet('${ex}')">Add Set</button>
       </div>
 
-      <div class="actions">
-        <button class="add">Add Set</button>
-        <button class="undo" style="display:none">Undo</button>
+      <div class="row">
+        <button onclick="adjust('${ex}', 'reps', -1)">−</button>
+        <div class="value">${reps} reps</div>
+        <button onclick="adjust('${ex}', 'reps', 1)">+</button>
       </div>
-    
+
+      <div class="set-list">
+        ${sets.map(s => `${s.reps}×${s.weight}`).join(", ")}
+      </div>
     `;
 
-    const wVal = card.querySelectorAll(".controls")[0].children[1];
-    const rVal = card.querySelectorAll(".controls")[1].children[1];
-    const setsDiv = card.querySelector(".sets");
-    const motDiv = card.querySelector(".motivation");
-    const undoBtn = card.querySelector(".undo");
-
-    card.querySelector(".wminus").onclick = () => {
-      weight = Math.max(0, weight - 5);
-      wVal.textContent = `${weight} lb`;
-    };
-    card.querySelector(".wplus").onclick = () => {
-      weight += 5;
-      wVal.textContent = `${weight} lb`;
-    };
-    card.querySelector(".rminus").onclick = () => {
-      reps = Math.max(1, reps - 1);
-      rVal.textContent = `${reps} reps`;
-    };
-    card.querySelector(".rplus").onclick = () => {
-      reps = Math.min(20, reps + 1);
-      rVal.textContent = `${reps} reps`;
-    };
-
-    card.querySelector(".add").onclick = () => {
-      const set = { exercise: ex, weight, reps, time: Date.now() };
-      data[today].push(set);
-      localStorage.setItem("gymData", JSON.stringify(data));
-
-      const { maxWeight, maxVolume } = bestStats(ex);
-      const volume = weight * reps;
-
-      motDiv.textContent = "";
-      if (weight > maxWeight) motDiv.textContent = "✓ New max weight";
-      else if (volume > maxVolume) motDiv.textContent = "↗ Highest volume so far";
-
-      render();
-    };
-
-    undoBtn.onclick = () => {
-      const idx = [...data[today]].reverse().findIndex(s => s.exercise === ex);
-      if (idx !== -1) {
-        data[today].splice(data[today].length - 1 - idx, 1);
-        localStorage.setItem("gymData", JSON.stringify(data));
-        render();
-      }
-    };
-
-    const todaysSets = data[today].filter(s => s.exercise === ex);
-    if (todaysSets.length) {
-      setsDiv.textContent = todaysSets.map(s => `${s.reps}×${s.weight}`).join(", ");
-      undoBtn.style.display = "block";
-    }
-
+    card.dataset.weight = weight;
+    card.dataset.reps = reps;
     app.appendChild(card);
   });
 }
 
+function adjust(ex, field, dir) {
+  const card = [...document.querySelectorAll(".card")]
+    .find(c => c.querySelector(".title").textContent === ex);
+
+  let value = Number(card.dataset[field]);
+  if (field === "weight") value += dir * WEIGHT_STEP;
+  if (field === "reps") value += dir;
+
+  if (field === "weight") value = Math.max(5, value);
+  if (field === "reps") value = Math.max(1, value);
+
+  card.dataset[field] = value;
+  render();
+}
+
+function addSet(ex) {
+  const card = [...document.querySelectorAll(".card")]
+    .find(c => c.querySelector(".title").textContent === ex);
+
+  const set = {
+    weight: Number(card.dataset.weight),
+    reps: Number(card.dataset.reps)
+  };
+
+  data[today][ex] ??= [];
+  data[today][ex].push(set);
+  save();
+
+  lastAction = { ex, set };
+  showToast("Set added");
+  render();
+}
+
+function undoLast() {
+  if (!lastAction) return;
+  const { ex } = lastAction;
+  data[today][ex].pop();
+  save();
+  lastAction = null;
+  hideToast();
+  render();
+}
+
+function showToast(text) {
+  const toast = document.getElementById("toast");
+  document.getElementById("toastText").textContent = text;
+
+  toast.classList.add("show");
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(hideToast, DISMISS_MS);
+}
+
+function hideToast() {
+  const toast = document.getElementById("toast");
+  toast.classList.remove("show");
+  lastAction = null;
+}
+
 render();
 </script>
+
 </body>
 </html>
-
