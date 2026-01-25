@@ -18,10 +18,17 @@
     border-radius: 10px;
     padding: 10px;
     margin-bottom: 10px;
-    background: #1a1a1a;
+  :  background: #1a1a1a;
     display: grid;
-    grid-template-columns: 1fr 90px;
+    grid-template-columns: 1fr 110px;
     column-gap: 10px;
+  }
+
+  .actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
   }
 
   .name {
@@ -54,16 +61,16 @@
   .add {
     background: #3a6;
     color: #000;
-    height: 100%;
     font-size: 14px;
+    padding: 10px 8px;
   }
 
   .undo {
     background: #444;
     font-size: 12px;
-    margin-top: 4px;
+    padding: 6px 8px;
   }
-
+  
   .sets {
     font-size: 13px;
     margin-top: 4px;
@@ -155,10 +162,11 @@ function render() {
         <div class="motivation"></div>
       </div>
 
-      <div>
-        <button class="add">Add<br>Set</button>
+      <div class="actions">
+        <button class="add">Add Set</button>
         <button class="undo" style="display:none">Undo</button>
       </div>
+    
     `;
 
     const wVal = card.querySelectorAll(".controls")[0].children[1];
