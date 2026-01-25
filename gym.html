@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gym Circuit</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    background: #111;
+    color: #eee;
+    margin: 0;
+    padding: 12px;
+  }
+  .exercise {
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px;
+    margin-bottom: 12px;
+    background: #1a1a1a;
+  }
+  .name {
+    font-size: 14px;
+    opacity: 0.8;
+  }
+  .last {
+    font-size: 13px;
+    opacity: 0.6;
+    margin-top: 4px;
+  }
+  .controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  button {
+    font-size: 18px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: none;
+    background: #333;
+    color: #eee;
+  }
+  .primary {
+    background: #3a6;
+    color: #000;
+    flex: 1;
+  }
+  .sets {
+    font-size: 14px;
+    margin-top: 8px;
+  }
+  .motivation {
+    font-size: 13px;
+    color: #7f7;
+    margin-top: 4px;
+  }
+</style>
+</head>
+<body>
+
+<div id="app"></div>
+
+<script>
+const EXERCISES = [
+  "Leg Press", "Leg Curl", "Leg Extension",
+  "Bicep Curl", "Tricep Extension", 
+  "Chest Press", "Shoulder Press", "Lat Pulldown",
+  "Abdominal Curl", "Machine Row"
+];
+
+const today = new Date().toISOString().slice(0,10);
+const data = JSON.parse(localStorage.getItem("gymData") || "{}");
+data[today] = data[today] || [];
+
+function lastWorkout(ex) {
+  const dates = Object.keys(data).filter(d => d !== today).sort().reverse();
+  for (const d of dates) {
+    const sets = data[d].filter(s => s.exercise === ex);
+    if (sets.length) return sets;
+  }
+  return [];
+}
+
+function bestStats(ex) {
+  let maxWeight = 0;
+  let maxVolume = 0;
+  Object.values(data).flat().forEach(s => {
+    if (s.exercise === ex) {
+      if (s.weight > maxWeight) maxWeight = s.weight;
+      maxVolume = Math.max(maxVolume, s.weight * s.reps);
+    }
+  });
+  return { maxWeight, maxVolume };
+}
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  EXERCISES.forEach(ex => {
+    const last = lastWorkout(ex);
+    const lastText = last.map(s => `${s.reps}×${s.weight}`).join(", ") || "—";
+
+    const card = document.createElement("div");
+    card.className = "exercise";
+
+    let weight = last[0]?.weight || 50;
+    let reps = last[0]?.reps || 12;
+
+    card.innerHTML = `
+      <div class="name">${ex}</div>
+      <div class="last">Last: ${lastText}</div>
+
+      <div class="controls">
+        <button>-</button>
+        <div>${weight} lb</div>
+        <button>+</button>
+      </div>
+
+      <div class="controls">
+        <button>-</button>
+        <div>${reps} reps</div>
+        <button>+</button>
+      </div>
+
+      <button class="primary">Add set</button>
+      <div class="sets"></div>
+      <div class="motivation"></div>
+    `;
+
+    const [wMinus, wVal, wPlus] = card.querySelectorAll(".controls")[0].children;
+    const [rMinus, rVal, rPlus] = card.querySelectorAll(".controls")[1].children;
+    const addBtn = card.querySelector(".primary");
+    const setsDiv = card.querySelector(".sets");
+    const motDiv = card.querySelector(".motivation");
+
+    wMinus.onclick = () => { weight = Math.max(0, weight - 5); wVal.textContent = `${weight} lb`; };
+    wPlus.onclick = () => { weight += 5; wVal.textContent = `${weight} lb`; };
+    rMinus.onclick = () => { reps = Math.max(6, reps - 1); rVal.textContent = `${reps} reps`; };
+    rPlus.onclick = () => { reps = Math.min(12, reps + 1); rVal.textContent = `${reps} reps`; };
+
+    addBtn.onclick = () => {
+      const set = { exercise: ex, weight, reps, time: Date.now() };
+      data[today].push(set);
+      localStorage.setItem("gymData", JSON.stringify(data));
+
+      const { maxWeight, maxVolume } = bestStats(ex);
+      const volume = weight * reps;
+
+      motDiv.textContent = "";
+      if (weight > maxWeight) motDiv.textContent = "✓ New max weight";
+      else if (volume > maxVolume) motDiv.textContent = "↗ Highest volume so far";
+
+      render();
+    };
+
+    const todaysSets = data[today].filter(s => s.exercise === ex);
+    setsDiv.textContent = todaysSets.map(s => `${s.reps}×${s.weight}`).join(", ");
+
+    app.appendChild(card);
+  });
+}
+
+render();
+</script>
+
+</body>
+</html>
+
