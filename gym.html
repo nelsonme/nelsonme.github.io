@@ -17,6 +17,7 @@
   h1 {
     font-size: 18px;
     margin-bottom: 12px;
+    font-weight: 600;
   }
 
   .card {
@@ -34,7 +35,7 @@
 
   .last {
     font-size: 12px;
-    opacity: 0.5;
+    opacity: 0.55;
     margin-bottom: 8px;
   }
 
@@ -81,7 +82,7 @@
     margin-top: 6px;
   }
 
-  /* Toast */
+  /* Undo toast */
   .toast {
     position: fixed;
     bottom: 18px;
@@ -116,7 +117,7 @@
 
 <body>
 
-<h1>Workout</h1>
+<h1 id="header"></h1>
 <div id="app"></div>
 
 <div id="toast" class="toast">
@@ -134,51 +135,78 @@ const EXERCISES = [
 
 const WEIGHT_STEP = 5;
 const DISMISS_MS = 5000;
+const STORAGE_KEY = "gymData";
 
 let lastAction = null;
 let toastTimer = null;
 
+/* ---------- Date helpers ---------- */
+
 function todayKey() {
   const d = new Date();
-  return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${d.getFullYear()}-${mm}-${dd}`;
 }
 
-const storageKey = "gymData";
-const data = JSON.parse(localStorage.getItem(storageKey) || "{}");
+function formatDate(key) {
+  const [y, m, d] = key.split("-");
+  return `${m}/${d}/${y}`;
+}
+
+/* ---------- Data ---------- */
+
+const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 const today = todayKey();
 data[today] ??= {};
 
-// --- draft state (THIS IS THE FIX) ---
-const draft = {};
+const draft = {}; // per-exercise in-progress state
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+/* ---------- History lookup ---------- */
 
 function lastWorkout(ex) {
-  const days = Object.keys(data).filter(d => d !== today).sort().reverse();
+  const days = Object.keys(data)
+    .filter(d => d !== today)
+    .sort()
+    .reverse();
+
   for (const d of days) {
-    if (data[d][ex]?.length) return data[d][ex];
+    if (data[d][ex]?.length) {
+      return { date: d, sets: data[d][ex] };
+    }
   }
-  return [];
+  return null;
 }
 
 function initDraft(ex) {
   if (draft[ex]) return;
+
   const last = lastWorkout(ex);
+  const lastSet = last?.sets.at(-1);
+
   draft[ex] = {
-    weight: last.at(-1)?.weight ?? 50,
-    reps: last.at(-1)?.reps ?? 12
+    weight: lastSet?.weight ?? 50,
+    reps: lastSet?.reps ?? 12
   };
 }
 
-function save() {
-  localStorage.setItem(storageKey, JSON.stringify(data));
-}
+/* ---------- UI ---------- */
 
 function render() {
+  document.getElementById("header").textContent =
+    `Workout — ${formatDate(today)}`;
+
   const app = document.getElementById("app");
   app.innerHTML = "";
 
   EXERCISES.forEach(ex => {
     initDraft(ex);
-    const sets = data[today][ex] || [];
+
+    const todaySets = data[today][ex] || [];
     const last = lastWorkout(ex);
 
     const card = document.createElement("div");
@@ -186,7 +214,13 @@ function render() {
 
     card.innerHTML = `
       <div class="title">${ex}</div>
-      <div class="last">Last: ${last.map(s => `${s.reps}×${s.weight}`).join(", ") || "—"}</div>
+      <div class="last">
+        Last: ${
+          last
+            ? `${last.sets.map(s => `${s.reps}×${s.weight}`).join(", ")} (${formatDate(last.date)})`
+            : "—"
+        }
+      </div>
 
       <div class="row">
         <button onclick="adjust('${ex}','weight',-1)">−</button>
@@ -203,13 +237,15 @@ function render() {
       </div>
 
       <div class="set-list">
-        ${sets.map(s => `${s.reps}×${s.weight}`).join(", ")}
+        ${todaySets.map(s => `${s.reps}×${s.weight}`).join(", ")}
       </div>
     `;
 
     app.appendChild(card);
   });
 }
+
+/* ---------- Actions ---------- */
 
 function adjust(ex, field, dir) {
   if (field === "weight") {
@@ -236,15 +272,17 @@ function undoLast() {
   const { ex } = lastAction;
   data[today][ex].pop();
   save();
-  lastAction = null;
   hideToast();
   render();
 }
+
+/* ---------- Toast ---------- */
 
 function showToast(text) {
   const toast = document.getElementById("toast");
   document.getElementById("toastText").textContent = text;
   toast.classList.add("show");
+
   clearTimeout(toastTimer);
   toastTimer = setTimeout(hideToast, DISMISS_MS);
 }
@@ -254,8 +292,11 @@ function hideToast() {
   lastAction = null;
 }
 
+/* ---------- Init ---------- */
+
 render();
 </script>
 
 </body>
 </html>
+
