@@ -28,7 +28,6 @@
     box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
   }
 
-  /* Active exercise highlight */
   .card.active {
     box-shadow:
       0 0 0 2px #0aa95c,
@@ -38,12 +37,18 @@
   .title {
     font-size: 14px;
     opacity: 0.9;
+    margin-bottom: 4px;
   }
 
-  .last {
+  .history {
     font-size: 12px;
-    opacity: 0.55;
-    margin-bottom: 8px;
+    opacity: 0.6;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .history .best {
+    color: #e6d27a;
   }
 
   .row {
@@ -79,29 +84,24 @@
     width: 110px;
     height: 44px;
     margin-left: auto;
+    margin-top: 4px;
     border-radius: 12px;
   }
 
-  /* Add Set button states */
-  .add-ready {
-    background: #0aa95c;
-  }
-
-  .add-in-progress {
-    background: #6fd6a6;
-  }
-
-  .add-complete {
-    background: #888;
-  }
+  .add-ready { background: #0aa95c; }
+  .add-in-progress { background: #6fd6a6; }
+  .add-complete { background: #888; }
 
   .set-list {
     font-size: 13px;
-    opacity: 0.8;
+    opacity: 0.85;
     margin-top: 6px;
   }
 
-  /* Undo toast */
+  .pr {
+    color: #0aa95c;
+  }
+
   .toast {
     position: fixed;
     bottom: 18px;
@@ -145,8 +145,6 @@
 </div>
 
 <script>
-/* ---------- Config ---------- */
-
 const EXERCISES = [
   "Leg Press", "Leg Curl", "Leg Extension",
   "Bicep Curl", "Tricep Extension", "Shoulder Press",
@@ -155,115 +153,137 @@ const EXERCISES = [
 ];
 
 const WEIGHT_STEP = 5;
-const TARGET_SETS = 3;        // <<< change later if desired
-const DISMISS_MS = 5000;
+const TARGET_SETS = 3;
 const STORAGE_KEY = "gymData";
 
-/* ---------- State ---------- */
-
-let lastAction = null;
-let toastTimer = null;
 let activeExercise = null;
-
-/* ---------- Date helpers ---------- */
+let lastAction = null;
 
 function todayKey() {
   const d = new Date();
-  const mm = String(d.getMonth() + 1).padStart(2, "0");
-  const dd = String(d.getDate()).padStart(2, "0");
-  return `${d.getFullYear()}-${mm}-${dd}`;
+  return d.toISOString().slice(0,10);
 }
 
-function formatDate(key) {
-  const [y, m, d] = key.split("-");
-  return `${m}/${d}/${y}`;
+function mmdd(key) {
+  const [,m,d] = key.split("-");
+  return `${m}/${d}`;
 }
-
-/* ---------- Data ---------- */
 
 const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
 const today = todayKey();
 data[today] ??= {};
-
-const draft = {}; // per-exercise in-progress state
+const draft = {};
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
 }
 
-/* ---------- History lookup ---------- */
-
-function lastWorkout(ex) {
-  const days = Object.keys(data)
-    .filter(d => d !== today)
-    .sort()
-    .reverse();
-
-  for (const d of days) {
-    if (data[d][ex]?.length) {
-      return { date: d, sets: data[d][ex] };
-    }
-  }
-  return null;
-}
-
 function initDraft(ex) {
   if (draft[ex]) return;
-
-  const last = lastWorkout(ex);
-  const lastSet = last?.sets.at(-1);
-
+  const last = lastWorkout(ex)?.sets.at(-1);
   draft[ex] = {
-    weight: lastSet?.weight ?? 50,
-    reps: lastSet?.reps ?? 12
+    weight: last?.weight ?? 50,
+    reps: last?.reps ?? 12
   };
 }
 
-/* ---------- UI ---------- */
+function lastWorkout(ex) {
+  return Object.keys(data)
+    .filter(d => d !== today && data[d][ex]?.length)
+    .sort()
+    .reverse()
+    .map(d => ({ date: d, sets: data[d][ex] }))[0] || null;
+}
 
-function addSetClass(count) {
-  if (count === 0) return "add-ready";
-  if (count < TARGET_SETS) return "add-in-progress";
+/* ---------- PR helpers ---------- */
+
+function historicalStats(ex) {
+  let wsmw = null;
+  let bestReps = null;
+  let bestDate = null;
+
+  for (const d of Object.keys(data)) {
+    if (d === today) continue;
+    for (const s of data[d][ex] || []) {
+      if (s.reps >= 6 && s.reps <= 12) {
+        if (wsmw === null || s.weight > wsmw) {
+          wsmw = s.weight;
+        }
+      }
+    }
+  }
+
+  if (wsmw !== null) {
+    for (const d of Object.keys(data)) {
+      if (d === today) continue;
+      for (const s of data[d][ex] || []) {
+        if (s.weight >= wsmw) {
+          if (bestReps === null || s.reps > bestReps) {
+            bestReps = s.reps;
+            bestDate = d;
+          }
+        }
+      }
+    }
+  }
+
+  return { wsmw, bestReps, bestDate };
+}
+
+function addSetClass(n) {
+  if (n === 0) return "add-ready";
+  if (n < TARGET_SETS) return "add-in-progress";
   return "add-complete";
 }
 
+function haptic() {
+  navigator.vibrate?.(20);
+}
+
 function render() {
-  document.getElementById("header").textContent =
-    `Workout — ${formatDate(today)}`;
+  document.getElementById("header").textContent = `Workout — ${today}`;
 
   const app = document.getElementById("app");
   app.innerHTML = "";
 
-  EXERCISES.forEach(ex => {
+  for (const ex of EXERCISES) {
     initDraft(ex);
-
     const todaySets = data[today][ex] || [];
     const last = lastWorkout(ex);
+    const stats = historicalStats(ex);
 
     const card = document.createElement("div");
     card.className = "card";
     if (ex === activeExercise) card.classList.add("active");
 
-    const addClass = addSetClass(todaySets.length);
+    const historyLine = `
+      <div class="history">
+        Last: ${last ? last.sets.map(s => `${s.reps}×${s.weight}`).join(", ") : "—"}
+        ${stats.wsmw !== null ? `; <span class="best">Best: ${stats.bestReps}×${stats.wsmw} (${mmdd(stats.bestDate)})</span>` : ""}
+      </div>
+    `;
+
+    const renderedSets = todaySets.map(s => {
+      let repPR = false, wtPR = false;
+      if (stats.wsmw !== null) {
+        if (s.weight > stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
+        if (s.weight >= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
+      }
+      const cls = repPR || wtPR ? "pr" : "";
+      const reps = repPR ? `<b>${s.reps}</b>` : s.reps;
+      const weight = wtPR ? `<b>${s.weight}</b>` : s.weight;
+      return `<span class="${cls}">${reps}×${weight}</span>`;
+    }).join(", ");
 
     card.innerHTML = `
       <div class="title">${ex}</div>
-      <div class="last">
-        Last: ${
-          last
-            ? `${last.sets.map(s => `${s.reps}×${s.weight}`).join(", ")} (${formatDate(last.date)})`
-            : "—"
-        }
-      </div>
+      ${historyLine}
 
       <div class="row">
         <button onclick="adjust('${ex}','weight',-1)">−</button>
         <div class="value">${draft[ex].weight} lb</div>
         <button onclick="adjust('${ex}','weight',1)">+</button>
-
-        <button class="add-set ${addClass}" onclick="addSet('${ex}')">
-          Add Set
-        </button>
+        <button class="add-set ${addSetClass(todaySets.length)}" onclick="addSet('${ex}')">Add Set</button>
       </div>
 
       <div class="row">
@@ -272,20 +292,10 @@ function render() {
         <button onclick="adjust('${ex}','reps',1)">+</button>
       </div>
 
-      <div class="set-list">
-        ${todaySets.map(s => `${s.reps}×${s.weight}`).join(", ")}
-      </div>
+      <div class="set-list">${renderedSets}</div>
     `;
 
     app.appendChild(card);
-  });
-}
-
-/* ---------- Actions ---------- */
-
-function haptic() {
-  if (navigator.vibrate) {
-    navigator.vibrate(20);
   }
 }
 
@@ -300,48 +310,24 @@ function adjust(ex, field, dir) {
 
 function addSet(ex) {
   data[today][ex] ??= [];
-  const set = { ...draft[ex] };
-  data[today][ex].push(set);
+  data[today][ex].push({ ...draft[ex] });
   save();
-
   activeExercise = ex;
   lastAction = { ex };
-
   haptic();
-  showToast("Set added");
   render();
 }
 
 function undoLast() {
   if (!lastAction) return;
-  const { ex } = lastAction;
-  data[today][ex].pop();
+  data[today][lastAction.ex].pop();
   save();
-  hideToast();
+  lastAction = null;
   render();
 }
-
-/* ---------- Toast ---------- */
-
-function showToast(text) {
-  const toast = document.getElementById("toast");
-  document.getElementById("toastText").textContent = text;
-  toast.classList.add("show");
-
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(hideToast, DISMISS_MS);
-}
-
-function hideToast() {
-  document.getElementById("toast").classList.remove("show");
-  lastAction = null;
-}
-
-/* ---------- Init ---------- */
 
 render();
 </script>
 
 </body>
 </html>
-
