@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Data Backup/Restore</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .section {
+            margin: 30px 0;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>Workout Data Manager</h1>
+    
+    <div class="section">
+        <h2>Export Data</h2>
+        <p>Download your workout data as a JSON file:</p>
+        <button onclick="exportData()">Export to File</button>
+    </div>
+    
+    <div class="section">
+        <h2>Import Data</h2>
+        <p>Upload a previously saved workout data file:</p>
+        <input type="file" id="fileInput" accept=".json">
+        <button onclick="importData()">Import from File</button>
+    </div>
+    
+    <div id="status"></div>
+
+    <script>
+        const STORAGE_KEY = 'gymData'; // Make sure this matches your app's key
+
+        function exportData() {
+            try {
+                // Read data from localStorage
+                const data = localStorage.getItem(STORAGE_KEY);
+                
+                if (!data || data === '{}') {
+                    showStatus('No workout data found in localStorage', 'error');
+                    return;
+                }
+                
+                // Create a blob from the data
+                const blob = new Blob([data], { type: 'application/json' });
+                
+                // Create download link
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `workout-data-${new Date().toISOString().split('T')[0]}.json`;
+                
+                // Trigger download
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                showStatus('Data exported successfully!', 'success');
+            } catch (error) {
+                showStatus('Export failed: ' + error.message, 'error');
+            }
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showStatus('Please select a file first', 'error');
+                return;
+            }
+            
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const content = e.target.result;
+                    
+                    // Validate it's valid JSON
+                    JSON.parse(content);
+                    
+                    // Save to localStorage
+                    localStorage.setItem(STORAGE_KEY, content);
+                    
+                    showStatus('Data imported successfully! Refresh your workout app to see the changes.', 'success');
+                    fileInput.value = ''; // Clear the file input
+                } catch (error) {
+                    showStatus('Import failed: Invalid JSON file - ' + error.message, 'error');
+                }
+            };
+            
+            reader.onerror = function() {
+                showStatus('Failed to read file', 'error');
+            };
+            
+            reader.readAsText(file);
+        }
+
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = type;
+        }
+    </script>
+</body>
+</html>
