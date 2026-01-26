@@ -28,6 +28,13 @@
     box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
   }
 
+  /* Active exercise highlight */
+  .card.active {
+    box-shadow:
+      0 0 0 2px #0aa95c,
+      0 8px 24px rgba(0,0,0,0.5);
+  }
+
   .title {
     font-size: 14px;
     opacity: 0.9;
@@ -67,13 +74,25 @@
   }
 
   .add-set {
-    background: #0aa95c;
     color: #000;
     font-weight: 600;
     width: 110px;
     height: 44px;
     margin-left: auto;
     border-radius: 12px;
+  }
+
+  /* Add Set button states */
+  .add-ready {
+    background: #0aa95c;
+  }
+
+  .add-in-progress {
+    background: #6fd6a6;
+  }
+
+  .add-complete {
+    background: #888;
   }
 
   .set-list {
@@ -126,6 +145,8 @@
 </div>
 
 <script>
+/* ---------- Config ---------- */
+
 const EXERCISES = [
   "Leg Press", "Leg Curl", "Leg Extension",
   "Bicep Curl", "Tricep Extension", "Shoulder Press",
@@ -134,11 +155,15 @@ const EXERCISES = [
 ];
 
 const WEIGHT_STEP = 5;
+const TARGET_SETS = 3;        // <<< change later if desired
 const DISMISS_MS = 5000;
 const STORAGE_KEY = "gymData";
 
+/* ---------- State ---------- */
+
 let lastAction = null;
 let toastTimer = null;
+let activeExercise = null;
 
 /* ---------- Date helpers ---------- */
 
@@ -196,6 +221,12 @@ function initDraft(ex) {
 
 /* ---------- UI ---------- */
 
+function addSetClass(count) {
+  if (count === 0) return "add-ready";
+  if (count < TARGET_SETS) return "add-in-progress";
+  return "add-complete";
+}
+
 function render() {
   document.getElementById("header").textContent =
     `Workout — ${formatDate(today)}`;
@@ -211,6 +242,9 @@ function render() {
 
     const card = document.createElement("div");
     card.className = "card";
+    if (ex === activeExercise) card.classList.add("active");
+
+    const addClass = addSetClass(todaySets.length);
 
     card.innerHTML = `
       <div class="title">${ex}</div>
@@ -227,7 +261,9 @@ function render() {
         <div class="value">${draft[ex].weight} lb</div>
         <button onclick="adjust('${ex}','weight',1)">+</button>
 
-        <button class="add-set" onclick="addSet('${ex}')">Add Set</button>
+        <button class="add-set ${addClass}" onclick="addSet('${ex}')">
+          Add Set
+        </button>
       </div>
 
       <div class="row">
@@ -247,6 +283,12 @@ function render() {
 
 /* ---------- Actions ---------- */
 
+function haptic() {
+  if (navigator.vibrate) {
+    navigator.vibrate(20);
+  }
+}
+
 function adjust(ex, field, dir) {
   if (field === "weight") {
     draft[ex].weight = Math.max(5, draft[ex].weight + dir * WEIGHT_STEP);
@@ -262,7 +304,10 @@ function addSet(ex) {
   data[today][ex].push(set);
   save();
 
+  activeExercise = ex;
   lastAction = { ex };
+
+  haptic();
   showToast("Set added");
   render();
 }
