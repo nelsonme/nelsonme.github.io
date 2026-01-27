@@ -273,8 +273,8 @@ function render() {
         if (s.weight >= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
       }
       const cls = repPR || wtPR ? "pr" : "";
-      const reps = repPR ? `<b>${s.reps}</b>` : s.reps;
-      const weight = wtPR ? `<b>${s.weight}</b>` : s.weight;
+      const reps = repPR ? `<u>${s.reps}</u>` : s.reps;
+      const weight = wtPR ? `<u>${s.weight}</u>` : s.weight;
       return `<span class="${cls}">${reps}×${weight}</span>`;
     }).join(", ");
 
