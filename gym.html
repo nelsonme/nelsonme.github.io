@@ -104,11 +104,10 @@
     color: #0aa95c;
   }
 
-  .toast {
+  /* ---------- Confirmation (formerly toast) ---------- */
+
+  .confirmation {
     position: fixed;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
     background: #2a2a2a;
     padding: 10px 14px;
     border-radius: 10px;
@@ -119,14 +118,15 @@
     pointer-events: none;
     transition: opacity 0.25s ease;
     box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 1000;
   }
 
-  .toast.show {
+  .confirmation.show {
     opacity: 1;
     pointer-events: auto;
   }
 
-  .toast button {
+  .confirmation button {
     width: auto;
     height: auto;
     padding: 4px 10px;
@@ -141,8 +141,8 @@
 <h1 id="header"></h1>
 <div id="app"></div>
 
-<div id="toast" class="toast">
-  <span id="toastText">Set added</span>
+<div id="confirmation" class="confirmation">
+  <span id="confirmationText">Set added</span>
   <button onclick="undoLast()">Undo</button>
 </div>
 
@@ -157,9 +157,11 @@ const EXERCISES = [
 const WEIGHT_STEP = 5;
 const TARGET_SETS = 3;
 const STORAGE_KEY = "gymData";
+const DISMISS_MS = 4000;
 
 let activeExercise = null;
 let lastAction = null;
+let confirmationTimer = null;
 
 function todayKey() {
   const d = new Date();
@@ -200,95 +202,46 @@ function lastWorkout(ex) {
     .map(d => ({ date: d, sets: data[d][ex] }))[0] || null;
 }
 
-/* ---------- PR helpers ---------- */
-
-function historicalStats(ex) {
-  let wsmw = null;
-  let bestReps = null;
-  let bestDate = null;
-
-  for (const d of Object.keys(data)) {
-    if (d === today) continue;
-    for (const s of data[d][ex] || []) {
-      if (s.reps >= 6 && s.reps <= 12) {
-        if (wsmw === null || s.weight > wsmw) {
-          wsmw = s.weight;
-        }
-      }
-    }
-  }
-
-  if (wsmw !== null) {
-    for (const d of Object.keys(data)) {
-      if (d === today) continue;
-      for (const s of data[d][ex] || []) {
-        if (s.weight >= wsmw) {
-          if (bestReps === null || s.reps > bestReps) {
-            bestReps = s.reps;
-            bestDate = d;
-          }
-        }
-      }
-    }
-  }
-
-  return { wsmw, bestReps, bestDate };
+function formatDate(key) {
+  const [y,m,d] = key.split("-");
+  return `${m}/${d}/${y}`;
 }
 
-function addSetClass(n) {
-  if (n === 0) return "add-ready";
-  if (n < TARGET_SETS) return "add-in-progress";
-  return "add-complete";
-}
-
-function haptic() {
-  navigator.vibrate?.(20);
-}
+/* ---------- Render ---------- */
 
 function render() {
-  document.getElementById("header").textContent = `Workout — ${today}`;
+  document.getElementById("header").textContent =
+    `Workout — ${formatDate(today)}`;
 
   const app = document.getElementById("app");
   app.innerHTML = "";
 
-  for (const ex of EXERCISES) {
+  EXERCISES.forEach(ex => {
     initDraft(ex);
+
     const todaySets = data[today][ex] || [];
     const last = lastWorkout(ex);
-    const stats = historicalStats(ex);
 
     const card = document.createElement("div");
     card.className = "card";
-    if (ex === activeExercise) card.classList.add("active");
-
-    const historyLine = `
-      <div class="history">
-        Last: ${last ? last.sets.map(s => `${s.reps}×${s.weight}`).join(", ") : "—"}
-        ${stats.wsmw !== null ? `; <span class="best">Best: ${stats.bestReps}×${stats.wsmw} (${mmdd(stats.bestDate)})</span>` : ""}
-      </div>
-    `;
-
-    const renderedSets = todaySets.map(s => {
-      let repPR = false, wtPR = false;
-      if (stats.wsmw !== null) {
-        if (s.weight > stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
-        if (s.weight >= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
-      }
-      const cls = repPR || wtPR ? "pr" : "";
-      const reps = repPR ? `<u>${s.reps}</u>` : s.reps;
-      const weight = wtPR ? `<u>${s.weight}</u>` : s.weight;
-      return `<span class="${cls}">${reps}×${weight}</span>`;
-    }).join(", ");
 
     card.innerHTML = `
       <div class="title">${ex}</div>
-      ${historyLine}
+
+      <div class="history">
+        Last: ${
+          last
+            ? last.sets.map(s => `${s.reps}×${s.weight}`).join(", ")
+            : "—"
+        }
+      </div>
 
       <div class="row">
         <button onclick="adjust('${ex}','weight',-1)">−</button>
         <div class="value">${draft[ex].weight} lb</div>
         <button onclick="adjust('${ex}','weight',1)">+</button>
-        <button class="add-set ${addSetClass(todaySets.length)}" onclick="addSet('${ex}')">Add Set</button>
+
+        <button class="add-set" onclick="addSet(event,'${ex}')">Add Set</button>
       </div>
 
       <div class="row">
@@ -297,12 +250,16 @@ function render() {
         <button onclick="adjust('${ex}','reps',1)">+</button>
       </div>
 
-      <div class="set-list">${renderedSets}</div>
+      <div class="set-list">
+        ${todaySets.map(s => `${s.reps}×${s.weight}`).join(", ")}
+      </div>
     `;
 
     app.appendChild(card);
-  }
+  });
 }
+
+/* ---------- Actions ---------- */
 
 function adjust(ex, field, dir) {
   if (field === "weight") {
@@ -313,27 +270,51 @@ function adjust(ex, field, dir) {
   render();
 }
 
-function addSet(ex) {
+function addSet(e, ex) {
   data[today][ex] ??= [];
   data[today][ex].push({ ...draft[ex] });
   save();
-  activeExercise = ex;
+
   lastAction = { ex };
-  haptic();
+  showConfirmationAbove(e.currentTarget, "Set added");
   render();
 }
 
 function undoLast() {
   if (!lastAction) return;
-  data[today][lastAction.ex].pop();
+  const { ex } = lastAction;
+  data[today][ex].pop();
   save();
-  lastAction = null;
+  hideConfirmation();
   render();
 }
+
+/* ---------- Confirmation ---------- */
+
+function showConfirmationAbove(button, text) {
+  const c = document.getElementById("confirmation");
+  document.getElementById("confirmationText").textContent = text;
+
+  const r = button.getBoundingClientRect();
+  c.style.left = `${r.left + r.width / 2}px`;
+  c.style.top = `${r.top - 10}px`;
+  c.style.transform = "translate(-50%, -100%)";
+
+  c.classList.add("show");
+
+  clearTimeout(confirmationTimer);
+  confirmationTimer = setTimeout(hideConfirmation, DISMISS_MS);
+}
+
+function hideConfirmation() {
+  document.getElementById("confirmation").classList.remove("show");
+  lastAction = null;
+}
+
+/* ---------- Init ---------- */
 
 render();
 </script>
 
 </body>
 </html>
-
