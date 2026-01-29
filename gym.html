@@ -30,7 +30,7 @@
 
   .card.active {
     box-shadow:
-      0 0 0 2px #0aa95c,
+      0 0 0 2px #d3d3d3,
       0 8px 24px rgba(0,0,0,0.5);
   }
 
@@ -103,8 +103,6 @@
   .pr {
     color: #0aa95c;
   }
-
-  /* ---------- Confirmation (formerly toast) ---------- */
 
   .confirmation {
     position: fixed;
@@ -202,46 +200,95 @@ function lastWorkout(ex) {
     .map(d => ({ date: d, sets: data[d][ex] }))[0] || null;
 }
 
-function formatDate(key) {
-  const [y,m,d] = key.split("-");
-  return `${m}/${d}/${y}`;
+/* ---------- PR helpers ---------- */
+
+function historicalStats(ex) {
+  let wsmw = null;
+  let bestReps = null;
+  let bestDate = null;
+
+  for (const d of Object.keys(data)) {
+    if (d === today) continue;
+    for (const s of data[d][ex] || []) {
+      if (s.reps >= 6 && s.reps <= 12) {
+        if (wsmw === null || s.weight > wsmw) {
+          wsmw = s.weight;
+        }
+      }
+    }
+  }
+
+  if (wsmw !== null) {
+    for (const d of Object.keys(data)) {
+      if (d === today) continue;
+      for (const s of data[d][ex] || []) {
+        if (s.weight >= wsmw) {
+          if (bestReps === null || s.reps > bestReps) {
+            bestReps = s.reps;
+            bestDate = d;
+          }
+        }
+      }
+    }
+  }
+
+  return { wsmw, bestReps, bestDate };
 }
 
-/* ---------- Render ---------- */
+function addSetClass(n) {
+  if (n === 0) return "add-ready";
+  if (n < TARGET_SETS) return "add-in-progress";
+  return "add-complete";
+}
+
+function haptic() {
+  navigator.vibrate?.(20);
+}
 
 function render() {
-  document.getElementById("header").textContent =
-    `Workout — ${formatDate(today)}`;
+  document.getElementById("header").textContent = `Workout — ${today}`;
 
   const app = document.getElementById("app");
   app.innerHTML = "";
 
-  EXERCISES.forEach(ex => {
+  for (const ex of EXERCISES) {
     initDraft(ex);
-
     const todaySets = data[today][ex] || [];
     const last = lastWorkout(ex);
+    const stats = historicalStats(ex);
 
     const card = document.createElement("div");
     card.className = "card";
+    if (ex === activeExercise) card.classList.add("active");
+
+    const historyLine = `
+      <div class="history">
+        Last: ${last ? last.sets.map(s => `${s.reps}×${s.weight}`).join(", ") : "—"}
+        ${stats.wsmw !== null ? `; <span class="best">Best: ${stats.bestReps}×${stats.wsmw} (${mmdd(stats.bestDate)})</span>` : ""}
+      </div>
+    `;
+
+    const renderedSets = todaySets.map(s => {
+      let repPR = false, wtPR = false;
+      if (stats.wsmw !== null) {
+        if (s.weight > stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
+        if (s.weight >= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
+      }
+      const cls = repPR || wtPR ? "pr" : "";
+      const reps = repPR ? `<u>${s.reps}</u>` : s.reps;
+      const weight = wtPR ? `<u>${s.weight}</u>` : s.weight;
+      return `<span class="${cls}">${reps}×${weight}</span>`;
+    }).join(", ");
 
     card.innerHTML = `
       <div class="title">${ex}</div>
-
-      <div class="history">
-        Last: ${
-          last
-            ? last.sets.map(s => `${s.reps}×${s.weight}`).join(", ")
-            : "—"
-        }
-      </div>
+      ${historyLine}
 
       <div class="row">
         <button onclick="adjust('${ex}','weight',-1)">−</button>
         <div class="value">${draft[ex].weight} lb</div>
         <button onclick="adjust('${ex}','weight',1)">+</button>
-
-        <button class="add-set" onclick="addSet(event,'${ex}')">Add Set</button>
+        <button class="add-set ${addSetClass(todaySets.length)}" onclick="addSet('${ex}', this)">Add Set</button>
       </div>
 
       <div class="row">
@@ -250,16 +297,12 @@ function render() {
         <button onclick="adjust('${ex}','reps',1)">+</button>
       </div>
 
-      <div class="set-list">
-        ${todaySets.map(s => `${s.reps}×${s.weight}`).join(", ")}
-      </div>
+      <div class="set-list">${renderedSets}</div>
     `;
 
     app.appendChild(card);
-  });
+  }
 }
-
-/* ---------- Actions ---------- */
 
 function adjust(ex, field, dir) {
   if (field === "weight") {
@@ -270,38 +313,25 @@ function adjust(ex, field, dir) {
   render();
 }
 
-function addSet(e, ex) {
+function addSet(ex, button) {
   data[today][ex] ??= [];
   data[today][ex].push({ ...draft[ex] });
   save();
-
+  activeExercise = ex;
   lastAction = { ex };
-  showConfirmationAbove(e.currentTarget, "Set added");
+  haptic();
+  showConfirmationAbove(button, "Set added");
   render();
 }
-
-function undoLast() {
-  if (!lastAction) return;
-  const { ex } = lastAction;
-  data[today][ex].pop();
-  save();
-  hideConfirmation();
-  render();
-}
-
-/* ---------- Confirmation ---------- */
 
 function showConfirmationAbove(button, text) {
   const c = document.getElementById("confirmation");
   document.getElementById("confirmationText").textContent = text;
-
   const r = button.getBoundingClientRect();
   c.style.left = `${r.left + r.width / 2}px`;
   c.style.top = `${r.top - 10}px`;
   c.style.transform = "translate(-50%, -100%)";
-
   c.classList.add("show");
-
   clearTimeout(confirmationTimer);
   confirmationTimer = setTimeout(hideConfirmation, DISMISS_MS);
 }
@@ -311,7 +341,14 @@ function hideConfirmation() {
   lastAction = null;
 }
 
-/* ---------- Init ---------- */
+function undoLast() {
+  if (!lastAction) return;
+  data[today][lastAction.ex].pop();
+  save();
+  lastAction = null;
+  hideConfirmation();
+  render();
+}
 
 render();
 </script>
