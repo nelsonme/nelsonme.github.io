@@ -360,18 +360,23 @@ function haptic() {
 function initializeVariantSelections() {
   const today = todayKey();
   
-  // Find the most recent workout date (excluding today)
-  const lastWorkoutDate = Object.keys(data)
-    .filter(d => d !== today && Object.keys(data[d]).length > 0)
-    .sort()
-    .reverse()[0];
+  // First check if today has any workout data
+  const todayHasData = Object.keys(data[today] || {}).length > 0;
+  
+  // If today has data, use it. Otherwise find the most recent workout date
+  const referenceDate = todayHasData 
+    ? today 
+    : Object.keys(data)
+        .filter(d => d !== today && Object.keys(data[d]).length > 0)
+        .sort()
+        .reverse()[0];
   
   selectedVariants = EXERCISES.map((exercise, slotIndex) => {
-    // If we have a last workout, check which variant was used
-    if (lastWorkoutDate) {
+    // If we have a reference date, check which variant was used
+    if (referenceDate) {
       for (let i = 0; i < exercise.variants.length; i++) {
         const variantName = exercise.variants[i];
-        if (data[lastWorkoutDate][variantName]?.length > 0) {
+        if (data[referenceDate][variantName]?.length > 0) {
           return i; // Found data for this variant
         }
       }
