@@ -31,6 +31,7 @@
     justify-content: center;
     gap: 16px;
     margin-bottom: 16px;
+    flex-wrap: wrap;
   }
 
   .date-nav button {
@@ -54,6 +55,12 @@
     text-align: center;
   }
 
+  .clear-data {
+    background: #5a2020 !important;
+    font-size: 12px !important;
+    padding: 6px 12px !important;
+  }
+
   h1 {
     font-size: 18px;
     margin-bottom: 12px;
@@ -75,6 +82,11 @@
       0 8px 24px rgba(0,0,0,0.5);
   }
 
+  .card.variant-1 { background: #1a0e0e; }
+  .card.variant-2 { background: #0e1a1a; }
+  .card.variant-3 { background: #0e0e1a; }
+  .card.variant-4 { background: #1a1a0e; }
+
   .title-row {
     display: flex;
     align-items: center;
@@ -89,8 +101,18 @@
 
   .variant-indicator {
     font-size: 11px;
-    opacity: 0.5;
+    opacity: 0.6;
     font-weight: 500;
+    background: #2a2a2a;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.15s;
+  }
+
+  .variant-indicator:active {
+    opacity: 0.8;
   }
 
   .history {
@@ -147,30 +169,6 @@
   .add-in-progress { background: #499972; }
   .add-complete { background: #888; }
 
-  .variant-nav {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    margin-top: 6px;
-  }
-
-  .variant-nav button {
-    width: 28px;
-    height: 28px;
-    font-size: 14px;
-    background: #2a1a1a;
-  }
-
-  .variant-nav button:active {
-    background: #3a2a2a;
-  }
-
-  .variant-nav button:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
   .set-list {
     font-size: 13px;
     opacity: 0.85;
@@ -219,6 +217,7 @@
   <button onclick="changeDate(-1)">← Prev Day</button>
   <div class="current-date" id="currentDate"></div>
   <button onclick="changeDate(1)">Next Day →</button>
+  <button class="clear-data" onclick="clearTestData()">Clear Test Data</button>
 </div>
 
 <h1 id="header"></h1>
@@ -344,8 +343,6 @@ function isAssisted(exerciseName) {
 }
 
 const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-const today = todayKey();
-data[today] ??= {};
 const draft = {};
 
 function save() {
@@ -431,17 +428,27 @@ function haptic() {
 
 function switchVariant(slotIndex, direction) {
   const exercise = EXERCISES[slotIndex];
-  const currentIndex = selectedVariants[slotIndex];
-  const newIndex = currentIndex + direction;
+  let newIndex = selectedVariants[slotIndex] + direction;
   
-  if (newIndex >= 0 && newIndex < exercise.variants.length) {
-    selectedVariants[slotIndex] = newIndex;
-    render();
+  // Wrap around
+  if (newIndex >= exercise.variants.length) newIndex = 0;
+  if (newIndex < 0) newIndex = exercise.variants.length - 1;
+  
+  selectedVariants[slotIndex] = newIndex;
+  render();
+}
+
+function clearTestData() {
+  if (confirm('Clear all test data? This cannot be undone.')) {
+    localStorage.removeItem(STORAGE_KEY);
+    location.reload();
   }
 }
 
 function render() {
   const today = todayKey();
+  data[today] ??= {};
+  
   document.getElementById("header").textContent = `Workout — ${today}`;
   document.getElementById("currentDate").textContent = formatCurrentDate();
 
@@ -461,9 +468,14 @@ function render() {
     const card = document.createElement("div");
     card.className = "card";
     if (ex === activeExercise) card.classList.add("active");
+    if (variantIndex > 0) card.classList.add(`variant-${Math.min(variantIndex, 4)}`);
 
     const variantIndicator = exercise.variants.length > 1 
-      ? `<span class="variant-indicator">${variantIndex + 1} of ${exercise.variants.length}</span>`
+      ? `<span class="variant-indicator" 
+               onclick="switchVariant(${slotIndex}, 1)"
+               oncontextmenu="event.preventDefault(); switchVariant(${slotIndex}, -1)">
+           ${variantIndex + 1} of ${exercise.variants.length}
+         </span>`
       : '';
 
     const historyLine = `
@@ -518,8 +530,6 @@ function render() {
         <div class="value">${draft[ex].reps} reps</div>
         <button onclick="adjust(${slotIndex},'reps',1)">+</button>
       </div>
-
-      ${variantNav}
 
       <div class="set-list">${renderedSets}</div>
     `;
