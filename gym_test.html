@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Gym Tracker [TEST]</title>
+
+<style>
+  body {
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background: #2a1010;
+    color: #f0f0f0;
+    margin: 0;
+    padding: 12px;
+  }
+
+  .test-banner {
+    background: #c91010;
+    color: #fff;
+    text-align: center;
+    padding: 8px;
+    margin: -12px -12px 12px -12px;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+  }
+
+  .date-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .date-nav button {
+    background: #3a2020;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .date-nav button:active {
+    background: #4a3030;
+  }
+
+  .date-nav .current-date {
+    font-size: 15px;
+    font-weight: 600;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  .card {
+    background: #1a0a0a;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 14px;
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05);
+  }
+
+  .card.active {
+    box-shadow:
+      0 0 0 2px #d3d3d3,
+      0 8px 24px rgba(0,0,0,0.5);
+  }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .title {
+    font-size: 14px;
+    opacity: 0.9;
+  }
+
+  .variant-indicator {
+    font-size: 11px;
+    opacity: 0.5;
+    font-weight: 500;
+  }
+
+  .history {
+    font-size: 12px;
+    opacity: 0.6;
+    line-height: 1.4;
+    margin-bottom: 10px;
+  }
+
+  .history .best {
+    color: #e6d27a;
+    opacity: 1;
+    font-weight: 600;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  button {
+    background: #2a2a2a;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    font-size: 18px;
+    cursor: pointer;
+  }
+
+  button:active {
+    background: #3a3a3a;
+  }
+
+  .value {
+    min-width: 80px;
+    text-align: center;
+    font-size: 16px;
+  }
+
+  .add-set {
+    color: #000;
+    font-weight: 600;
+    width: 110px;
+    height: 44px;
+    margin-left: auto;
+    border-radius: 12px;
+  }
+
+  .add-ready { background: #0aa95c; }
+  .add-in-progress { background: #499972; }
+  .add-complete { background: #888; }
+
+  .variant-nav {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 6px;
+  }
+
+  .variant-nav button {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    background: #2a1a1a;
+  }
+
+  .variant-nav button:active {
+    background: #3a2a2a;
+  }
+
+  .variant-nav button:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .set-list {
+    font-size: 13px;
+    opacity: 0.85;
+    margin-top: 6px;
+  }
+
+  .pr {
+    color: #0aa95c;
+  }
+
+  .confirmation {
+    position: fixed;
+    background: #2a2a2a;
+    padding: 10px 14px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    z-index: 1000;
+  }
+
+  .confirmation.show {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .confirmation button {
+    width: auto;
+    height: auto;
+    padding: 4px 10px;
+    font-size: 13px;
+    background: #444;
+  }
+</style>
+</head>
+
+<body>
+
+<div class="test-banner">⚠️ TEST MODE - Data saved to separate test storage ⚠️</div>
+
+<div class="date-nav">
+  <button onclick="changeDate(-1)">← Prev Day</button>
+  <div class="current-date" id="currentDate"></div>
+  <button onclick="changeDate(1)">Next Day →</button>
+</div>
+
+<h1 id="header"></h1>
+<div id="app"></div>
+
+<div id="confirmation" class="confirmation">
+  <span id="confirmationText">Set added</span>
+  <button onclick="undoLast()">Undo</button>
+</div>
+
+<script>
+const EXERCISES = [
+  {
+    group: "Legs",
+    variants: ["Legs - Press (Machine)"],
+    default: 0
+  },
+  {
+    group: "Chest",
+    variants: [
+      "Chest - Press (Machine)",
+      "Chest - Fly (Machine)",
+      "Chest - Press (DB, Incline)"
+    ],
+    default: 0
+  },
+  {
+    group: "Back",
+    variants: ["Back - Row (Machine)"],
+    default: 0
+  },
+  {
+    group: "Back",
+    variants: [
+      "Back - Pulldown (Machine)",
+      "Back - Pulldown (Cable, Wide)",
+      "Back - Pull-Up (Machine, Assisted)"
+    ],
+    default: 0
+  },
+  {
+    group: "Shoulders",
+    variants: [
+      "Shoulders - Press (Machine, Yellow)",
+      "Shoulders - Press (Machine, Purple)",
+      "Shoulders - Rev Fly (Machine)"
+    ],
+    default: 0
+  },
+  {
+    group: "Legs",
+    variants: ["Legs - Curl (Machine, Seated)"],
+    default: 0
+  },
+  {
+    group: "Legs",
+    variants: ["Legs - Extension (Machine)"],
+    default: 0
+  },
+  {
+    group: "Triceps",
+    variants: [
+      "Triceps - Pushdown (Machine)",
+      "Triceps - Extension (Machine)"
+    ],
+    default: 0
+  },
+  {
+    group: "Biceps",
+    variants: [
+      "Biceps - Curl (Machine)",
+      "Biceps - Curl (DB, Standing)"
+    ],
+    default: 0
+  },
+  {
+    group: "Abs",
+    variants: ["Abs - Curl (Machine)"],
+    default: 0
+  }
+];
+
+const WEIGHT_STEP = 5;
+const TARGET_SETS = 3;
+const STORAGE_KEY = "gymData_TEST";
+const DISMISS_MS = 4000;
+
+let testDate = new Date();
+let activeExercise = null;
+let lastAction = null;
+let confirmationTimer = null;
+
+// Track which variant is selected for each exercise slot
+let selectedVariants = EXERCISES.map(ex => ex.default);
+
+function todayKey() {
+  const y = testDate.getFullYear();
+  const m = String(testDate.getMonth() + 1).padStart(2, "0");
+  const day = String(testDate.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+
+function mmdd(key) {
+  const [,m,d] = key.split("-");
+  return `${m}/${d}`;
+}
+
+function formatCurrentDate() {
+  const y = testDate.getFullYear();
+  const m = String(testDate.getMonth() + 1).padStart(2, "0");
+  const d = String(testDate.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+function changeDate(days) {
+  testDate.setDate(testDate.getDate() + days);
+  document.getElementById('currentDate').textContent = formatCurrentDate();
+  render();
+}
+
+function isAssisted(exerciseName) {
+  return exerciseName.includes("Assisted");
+}
+
+const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+const today = todayKey();
+data[today] ??= {};
+const draft = {};
+
+function save() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+function initDraft(ex) {
+  if (draft[ex]) return;
+  const last = lastWorkout(ex)?.sets.at(-1);
+  draft[ex] = {
+    weight: last?.weight ?? 50,
+    reps: last?.reps ?? 12
+  };
+}
+
+function lastWorkout(ex) {
+  const today = todayKey();
+  return Object.keys(data)
+    .filter(d => d !== today && data[d][ex]?.length)
+    .sort()
+    .reverse()
+    .map(d => ({ date: d, sets: data[d][ex] }))[0] || null;
+}
+
+/* ---------- PR helpers ---------- */
+
+function historicalStats(ex) {
+  const assisted = isAssisted(ex);
+  let wsmw = null;
+  let bestReps = null;
+  let bestDate = null;
+  const today = todayKey();
+
+  for (const d of Object.keys(data)) {
+    if (d === today) continue;
+    for (const s of data[d][ex] || []) {
+      if (s.reps >= 6 && s.reps <= 12) {
+        if (assisted) {
+          // For assisted exercises, lower weight is better
+          if (wsmw === null || s.weight < wsmw) {
+            wsmw = s.weight;
+          }
+        } else {
+          // For normal exercises, higher weight is better
+          if (wsmw === null || s.weight > wsmw) {
+            wsmw = s.weight;
+          }
+        }
+      }
+    }
+  }
+
+  if (wsmw !== null) {
+    for (const d of Object.keys(data)) {
+      if (d === today) continue;
+      for (const s of data[d][ex] || []) {
+        const meetsWeightCriteria = assisted 
+          ? s.weight <= wsmw 
+          : s.weight >= wsmw;
+        
+        if (meetsWeightCriteria) {
+          if (bestReps === null || s.reps > bestReps) {
+            bestReps = s.reps;
+            bestDate = d;
+          }
+        }
+      }
+    }
+  }
+
+  return { wsmw, bestReps, bestDate };
+}
+
+function addSetClass(n) {
+  if (n === 0) return "add-ready";
+  if (n < TARGET_SETS) return "add-in-progress";
+  return "add-complete";
+}
+
+function haptic() {
+  navigator.vibrate?.(20);
+}
+
+function switchVariant(slotIndex, direction) {
+  const exercise = EXERCISES[slotIndex];
+  const currentIndex = selectedVariants[slotIndex];
+  const newIndex = currentIndex + direction;
+  
+  if (newIndex >= 0 && newIndex < exercise.variants.length) {
+    selectedVariants[slotIndex] = newIndex;
+    render();
+  }
+}
+
+function render() {
+  const today = todayKey();
+  document.getElementById("header").textContent = `Workout — ${today}`;
+  document.getElementById("currentDate").textContent = formatCurrentDate();
+
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  EXERCISES.forEach((exercise, slotIndex) => {
+    const variantIndex = selectedVariants[slotIndex];
+    const ex = exercise.variants[variantIndex];
+    const assisted = isAssisted(ex);
+    
+    initDraft(ex);
+    const todaySets = data[today][ex] || [];
+    const last = lastWorkout(ex);
+    const stats = historicalStats(ex);
+
+    const card = document.createElement("div");
+    card.className = "card";
+    if (ex === activeExercise) card.classList.add("active");
+
+    const variantIndicator = exercise.variants.length > 1 
+      ? `<span class="variant-indicator">${variantIndex + 1} of ${exercise.variants.length}</span>`
+      : '';
+
+    const historyLine = `
+      <div class="history">
+        Last: ${last ? last.sets.map(s => `${s.reps}×${s.weight}`).join(", ") : "—"}
+        ${stats.wsmw !== null ? `; <span class="best">Best: ${stats.bestReps}×${stats.wsmw} (${mmdd(stats.bestDate)})</span>` : ""}
+      </div>
+    `;
+
+    const renderedSets = todaySets.map(s => {
+      let repPR = false, wtPR = false;
+      if (stats.wsmw !== null) {
+        if (assisted) {
+          // For assisted: lower weight is better
+          if (s.weight < stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
+          if (s.weight <= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
+        } else {
+          // For normal: higher weight is better
+          if (s.weight > stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
+          if (s.weight >= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
+        }
+      }
+      const cls = repPR || wtPR ? "pr" : "";
+      const reps = repPR ? `<u>${s.reps}</u>` : s.reps;
+      const weight = wtPR ? `<u>${s.weight}</u>` : s.weight;
+      return `<span class="${cls}">${reps}×${weight}</span>`;
+    }).join(", ");
+
+    const variantNav = exercise.variants.length > 1 ? `
+      <div class="variant-nav">
+        <button onclick="switchVariant(${slotIndex}, -1)" ${variantIndex === 0 ? 'disabled' : ''}>‹</button>
+        <button onclick="switchVariant(${slotIndex}, 1)" ${variantIndex === exercise.variants.length - 1 ? 'disabled' : ''}>›</button>
+      </div>
+    ` : '';
+
+    card.innerHTML = `
+      <div class="title-row">
+        <div class="title">${ex}</div>
+        ${variantIndicator}
+      </div>
+      ${historyLine}
+
+      <div class="row">
+        <button onclick="adjust(${slotIndex},'weight',-1)">−</button>
+        <div class="value">${draft[ex].weight} lb</div>
+        <button onclick="adjust(${slotIndex},'weight',1)">+</button>
+        <button class="add-set ${addSetClass(todaySets.length)}" onclick="addSet(${slotIndex}, this)">Add Set</button>
+      </div>
+
+      <div class="row">
+        <button onclick="adjust(${slotIndex},'reps',-1)">−</button>
+        <div class="value">${draft[ex].reps} reps</div>
+        <button onclick="adjust(${slotIndex},'reps',1)">+</button>
+      </div>
+
+      ${variantNav}
+
+      <div class="set-list">${renderedSets}</div>
+    `;
+
+    app.appendChild(card);
+  });
+}
+
+function adjust(slotIndex, field, dir) {
+  const ex = EXERCISES[slotIndex].variants[selectedVariants[slotIndex]];
+  if (field === "weight") {
+    draft[ex].weight = Math.max(5, draft[ex].weight + dir * WEIGHT_STEP);
+  } else {
+    draft[ex].reps = Math.max(1, draft[ex].reps + dir);
+  }
+  render();
+}
+
+function addSet(slotIndex, button) {
+  const today = todayKey();
+  const ex = EXERCISES[slotIndex].variants[selectedVariants[slotIndex]];
+  data[today][ex] ??= [];
+  data[today][ex].push({ ...draft[ex] });
+  save();
+  activeExercise = ex;
+  lastAction = { ex };
+  haptic();
+  showConfirmationAbove(button, "Set added");
+  render();
+}
+
+function showConfirmationAbove(button, text) {
+  const c = document.getElementById("confirmation");
+  document.getElementById("confirmationText").textContent = text;
+  const r = button.getBoundingClientRect();
+  c.style.left = `${r.left + r.width / 2}px`;
+  c.style.top = `${r.top - 10}px`;
+  c.style.transform = "translate(-50%, -100%)";
+  c.classList.add("show");
+  clearTimeout(confirmationTimer);
+  confirmationTimer = setTimeout(hideConfirmation, DISMISS_MS);
+}
+
+function hideConfirmation() {
+  document.getElementById("confirmation").classList.remove("show");
+  lastAction = null;
+}
+
+function undoLast() {
+  if (!lastAction) return;
+  const today = todayKey();
+  data[today][lastAction.ex].pop();
+  save();
+  lastAction = null;
+  hideConfirmation();
+  render();
+}
+
+render();
+</script>
+
+</body>
+</html>
