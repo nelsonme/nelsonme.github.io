@@ -82,7 +82,7 @@
       0 8px 24px rgba(0,0,0,0.5);
   }
 
-  .card.variant-1 { background: #1a0e0e; }
+  .card.variant-1 { background: #1a1212; }
   .card.variant-2 { background: #0e1a1a; }
   .card.variant-3 { background: #0e0e1a; }
   .card.variant-4 { background: #1a1a0e; }
@@ -311,7 +311,31 @@ let lastAction = null;
 let confirmationTimer = null;
 
 // Track which variant is selected for each exercise slot
-let selectedVariants = EXERCISES.map(ex => ex.default);
+let selectedVariants = [];
+
+function initializeVariantSelections() {
+  const today = todayKey();
+  
+  // Find the most recent workout date (excluding today)
+  const lastWorkoutDate = Object.keys(data)
+    .filter(d => d !== today && Object.keys(data[d]).length > 0)
+    .sort()
+    .reverse()[0];
+  
+  selectedVariants = EXERCISES.map((exercise, slotIndex) => {
+    // If we have a last workout, check which variant was used
+    if (lastWorkoutDate) {
+      for (let i = 0; i < exercise.variants.length; i++) {
+        const variantName = exercise.variants[i];
+        if (data[lastWorkoutDate][variantName]?.length > 0) {
+          return i; // Found data for this variant
+        }
+      }
+    }
+    // No previous data found, use default
+    return exercise.default;
+  });
+}
 
 function todayKey() {
   const y = testDate.getFullYear();
@@ -334,6 +358,8 @@ function formatCurrentDate() {
 
 function changeDate(days) {
   testDate.setDate(testDate.getDate() + days);
+  activeExercise = null; // Clear active exercise when changing dates
+  initializeVariantSelections(); // Re-initialize variants for the new date
   document.getElementById('currentDate').textContent = formatCurrentDate();
   render();
 }
@@ -444,6 +470,9 @@ function clearTestData() {
     location.reload();
   }
 }
+
+// Initialize variant selections based on last workout
+initializeVariantSelections();
 
 function render() {
   const today = todayKey();
