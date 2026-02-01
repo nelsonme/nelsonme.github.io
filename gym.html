@@ -18,6 +18,7 @@
     font-size: 18px;
     margin-bottom: 12px;
     font-weight: 600;
+    text-align: center;
   }
 
   .card {
@@ -34,10 +35,37 @@
       0 8px 24px rgba(0,0,0,0.5);
   }
 
+  .card.variant-1 { background: #1a121a; }
+  .card.variant-2 { background: #0e1a1a; }
+  .card.variant-3 { background: #0e0e1a; }
+  .card.variant-4 { background: #1a1a0e; }
+
+  .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
   .title {
     font-size: 14px;
     opacity: 0.9;
-    margin-bottom: 4px;
+  }
+
+  .variant-indicator {
+    font-size: 11px;
+    opacity: 0.6;
+    font-weight: 500;
+    background: #2a2a2a;
+    padding: 3px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.15s;
+  }
+
+  .variant-indicator:active {
+    opacity: 0.8;
   }
 
   .history {
@@ -68,6 +96,7 @@
     width: 36px;
     height: 36px;
     font-size: 18px;
+    cursor: pointer;
   }
 
   button:active {
@@ -86,7 +115,6 @@
     width: 110px;
     height: 44px;
     margin-left: auto;
-    margin-top: 4px;
     border-radius: 12px;
   }
 
@@ -146,16 +174,74 @@
 
 <script>
 const EXERCISES = [
-  "Leg Press", 
-  "Chest Press", 
-  "Machine Row", 
-  "Lat Pulldown", 
-  "Shoulder Press", 
-  "Leg Curl", 
-  "Leg Extension",
-  "Tricep Pushdown", 
-  "Bicep Curl", 
-  "Abdominal Curl"
+  {
+    group: "Legs",
+    variants: ["Legs - Press (Machine)"],
+    default: 0
+  },
+  {
+    group: "Chest",
+    variants: [
+      "Chest - Press (Machine)",
+      "Chest - Fly (Machine)",
+      "Chest - Press (DB, Incline)"
+    ],
+    default: 0
+  },
+  {
+    group: "Back",
+    variants: ["Back - Row (Machine)"],
+    default: 0
+  },
+  {
+    group: "Back",
+    variants: [
+      "Back - Pulldown (Machine)",
+      "Back - Pulldown (Cable, Wide)",
+      "Back - Pull-Up (Machine, Assisted)"
+    ],
+    default: 0
+  },
+  {
+    group: "Shoulders",
+    variants: [
+      "Shoulders - Press (Machine, Yellow)",
+      "Shoulders - Press (Machine, Purple)",
+      "Shoulders - Rev Fly (Machine)"
+    ],
+    default: 0
+  },
+  {
+    group: "Legs",
+    variants: ["Legs - Curl (Machine, Seated)"],
+    default: 0
+  },
+  {
+    group: "Legs",
+    variants: ["Legs - Extension (Machine)"],
+    default: 0
+  },
+  {
+    group: "Triceps",
+    variants: [
+      "Triceps - Pushdown (Machine)",
+      "Triceps - Extension (Machine)"
+    ],
+    default: 0
+  },
+  {
+    group: "Biceps",
+    variants: [
+      "Biceps - Curl (Machine)",
+      "Biceps - Curl (DB, Standing)"
+    ],
+    default: 0
+  },
+  {
+    group: "Abs",
+    variants: ["Abs - Curl (Machine)"],
+    default: 0
+  }
 ];
 
 const WEIGHT_STEP = 5;
@@ -166,6 +252,9 @@ const DISMISS_MS = 4000;
 let activeExercise = null;
 let lastAction = null;
 let confirmationTimer = null;
+
+// Track which variant is selected for each exercise slot
+let selectedVariants = [];
 
 function todayKey() {
   const d = new Date();
@@ -180,9 +269,11 @@ function mmdd(key) {
   return `${m}/${d}`;
 }
 
+function isAssisted(exerciseName) {
+  return exerciseName.includes("Assisted");
+}
+
 const data = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-const today = todayKey();
-data[today] ??= {};
 const draft = {};
 
 function save() {
@@ -199,6 +290,7 @@ function initDraft(ex) {
 }
 
 function lastWorkout(ex) {
+  const today = todayKey();
   return Object.keys(data)
     .filter(d => d !== today && data[d][ex]?.length)
     .sort()
@@ -209,16 +301,26 @@ function lastWorkout(ex) {
 /* ---------- PR helpers ---------- */
 
 function historicalStats(ex) {
+  const assisted = isAssisted(ex);
   let wsmw = null;
   let bestReps = null;
   let bestDate = null;
+  const today = todayKey();
 
   for (const d of Object.keys(data)) {
     if (d === today) continue;
     for (const s of data[d][ex] || []) {
       if (s.reps >= 6 && s.reps <= 12) {
-        if (wsmw === null || s.weight > wsmw) {
-          wsmw = s.weight;
+        if (assisted) {
+          // For assisted exercises, lower weight is better
+          if (wsmw === null || s.weight < wsmw) {
+            wsmw = s.weight;
+          }
+        } else {
+          // For normal exercises, higher weight is better
+          if (wsmw === null || s.weight > wsmw) {
+            wsmw = s.weight;
+          }
         }
       }
     }
@@ -228,7 +330,11 @@ function historicalStats(ex) {
     for (const d of Object.keys(data)) {
       if (d === today) continue;
       for (const s of data[d][ex] || []) {
-        if (s.weight >= wsmw) {
+        const meetsWeightCriteria = assisted 
+          ? s.weight <= wsmw 
+          : s.weight >= wsmw;
+        
+        if (meetsWeightCriteria) {
           if (bestReps === null || s.reps > bestReps) {
             bestReps = s.reps;
             bestDate = d;
@@ -251,13 +357,59 @@ function haptic() {
   navigator.vibrate?.(20);
 }
 
+function initializeVariantSelections() {
+  const today = todayKey();
+  
+  // Find the most recent workout date (excluding today)
+  const lastWorkoutDate = Object.keys(data)
+    .filter(d => d !== today && Object.keys(data[d]).length > 0)
+    .sort()
+    .reverse()[0];
+  
+  selectedVariants = EXERCISES.map((exercise, slotIndex) => {
+    // If we have a last workout, check which variant was used
+    if (lastWorkoutDate) {
+      for (let i = 0; i < exercise.variants.length; i++) {
+        const variantName = exercise.variants[i];
+        if (data[lastWorkoutDate][variantName]?.length > 0) {
+          return i; // Found data for this variant
+        }
+      }
+    }
+    // No previous data found, use default
+    return exercise.default;
+  });
+}
+
+function switchVariant(slotIndex, direction) {
+  const exercise = EXERCISES[slotIndex];
+  let newIndex = selectedVariants[slotIndex] + direction;
+  
+  // Wrap around
+  if (newIndex >= exercise.variants.length) newIndex = 0;
+  if (newIndex < 0) newIndex = exercise.variants.length - 1;
+  
+  selectedVariants[slotIndex] = newIndex;
+  render();
+}
+
+// Initialize variant selections based on last workout
+initializeVariantSelections();
+
 function render() {
+  const today = todayKey();
+  data[today] ??= {};
+  
   document.getElementById("header").textContent = `Workout — ${today}`;
 
   const app = document.getElementById("app");
   app.innerHTML = "";
 
-  for (const ex of EXERCISES) {
+  EXERCISES.forEach((exercise, slotIndex) => {
+    const variantIndex = selectedVariants[slotIndex];
+    const ex = exercise.variants[variantIndex];
+    const assisted = isAssisted(ex);
+    
     initDraft(ex);
     const todaySets = data[today][ex] || [];
     const last = lastWorkout(ex);
@@ -266,6 +418,15 @@ function render() {
     const card = document.createElement("div");
     card.className = "card";
     if (ex === activeExercise) card.classList.add("active");
+    if (variantIndex > 0) card.classList.add(`variant-${Math.min(variantIndex, 4)}`);
+
+    const variantIndicator = exercise.variants.length > 1 
+      ? `<span class="variant-indicator" 
+               onclick="switchVariant(${slotIndex}, 1)"
+               oncontextmenu="event.preventDefault(); switchVariant(${slotIndex}, -1)">
+           ${variantIndex + 1} of ${exercise.variants.length}
+         </span>`
+      : '';
 
     const historyLine = `
       <div class="history">
@@ -277,8 +438,15 @@ function render() {
     const renderedSets = todaySets.map(s => {
       let repPR = false, wtPR = false;
       if (stats.wsmw !== null) {
-        if (s.weight > stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
-        if (s.weight >= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
+        if (assisted) {
+          // For assisted: lower weight is better
+          if (s.weight < stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
+          if (s.weight <= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
+        } else {
+          // For normal: higher weight is better
+          if (s.weight > stats.wsmw && s.reps >= 6 && s.reps <= 12) wtPR = true;
+          if (s.weight >= stats.wsmw && stats.bestReps !== null && s.reps > stats.bestReps) repPR = true;
+        }
       }
       const cls = repPR || wtPR ? "pr" : "";
       const reps = repPR ? `<u>${s.reps}</u>` : s.reps;
@@ -287,30 +455,34 @@ function render() {
     }).join(", ");
 
     card.innerHTML = `
-      <div class="title">${ex}</div>
+      <div class="title-row">
+        <div class="title">${ex}</div>
+        ${variantIndicator}
+      </div>
       ${historyLine}
 
       <div class="row">
-        <button onclick="adjust('${ex}','weight',-1)">−</button>
+        <button onclick="adjust(${slotIndex},'weight',-1)">−</button>
         <div class="value">${draft[ex].weight} lb</div>
-        <button onclick="adjust('${ex}','weight',1)">+</button>
-        <button class="add-set ${addSetClass(todaySets.length)}" onclick="addSet('${ex}', this)">Add Set</button>
+        <button onclick="adjust(${slotIndex},'weight',1)">+</button>
+        <button class="add-set ${addSetClass(todaySets.length)}" onclick="addSet(${slotIndex}, this)">Add Set</button>
       </div>
 
       <div class="row">
-        <button onclick="adjust('${ex}','reps',-1)">−</button>
+        <button onclick="adjust(${slotIndex},'reps',-1)">−</button>
         <div class="value">${draft[ex].reps} reps</div>
-        <button onclick="adjust('${ex}','reps',1)">+</button>
+        <button onclick="adjust(${slotIndex},'reps',1)">+</button>
       </div>
 
       <div class="set-list">${renderedSets}</div>
     `;
 
     app.appendChild(card);
-  }
+  });
 }
 
-function adjust(ex, field, dir) {
+function adjust(slotIndex, field, dir) {
+  const ex = EXERCISES[slotIndex].variants[selectedVariants[slotIndex]];
   if (field === "weight") {
     draft[ex].weight = Math.max(5, draft[ex].weight + dir * WEIGHT_STEP);
   } else {
@@ -319,7 +491,9 @@ function adjust(ex, field, dir) {
   render();
 }
 
-function addSet(ex, button) {
+function addSet(slotIndex, button) {
+  const today = todayKey();
+  const ex = EXERCISES[slotIndex].variants[selectedVariants[slotIndex]];
   data[today][ex] ??= [];
   data[today][ex].push({ ...draft[ex] });
   save();
@@ -349,6 +523,7 @@ function hideConfirmation() {
 
 function undoLast() {
   if (!lastAction) return;
+  const today = todayKey();
   data[today][lastAction.ex].pop();
   save();
   lastAction = null;
