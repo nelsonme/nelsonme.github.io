@@ -250,7 +250,12 @@ const TARGET_SETS = 3;
 const STORAGE_KEY = "gymData";
 const DISMISS_MS = 4000;
 
-let activeExercise = null;
+// activeExercise gets saved along with the date (card has a border highlight)
+// it persists during a workout session across phone closing/opening
+// but resets to null at the start of a new workout day
+const _savedActive = JSON.parse(localStorage.getItem("gymActiveExercise") || "null");
+let activeExercise = (_savedActive?.date === todayKey()) ? _savedActive.ex : null;
+
 let lastAction = null;
 let confirmationTimer = null;
 
@@ -503,8 +508,10 @@ function addSet(slotIndex, button) {
   data[today][ex] ??= [];
   data[today][ex].push({ ...draft[ex] });
   save();
+  const previousActive = activeExercise;          // ← capture BEFORE changing it
   activeExercise = ex;
-  lastAction = { ex };
+  localStorage.setItem("gymActiveExercise", JSON.stringify({ ex, date: today }));
+  lastAction = { ex, previousActive };            // ← now correctly holds old value
   haptic();
   showConfirmationAbove(button, "Set added");
   render();
@@ -532,6 +539,12 @@ function undoLast() {
   const today = todayKey();
   data[today][lastAction.ex].pop();
   save();
+  activeExercise = lastAction.previousActive;
+  if (activeExercise) {
+    localStorage.setItem("gymActiveExercise", JSON.stringify({ ex: activeExercise, date: today }));
+  } else {
+    localStorage.removeItem("gymActiveExercise");
+  }
   lastAction = null;
   hideConfirmation();
   render();
