@@ -297,10 +297,14 @@ function save() {
 
 function initDraft(ex) {
   if (draft[ex]) return;
-  const last = lastWorkout(ex)?.sets.at(-1);
+  const today = todayKey();
+  const todaySets = data[today]?.[ex];
+  const ref = todaySets?.length
+    ? todaySets.at(-1)          // today's most recent set takes priority
+    : lastWorkout(ex)?.sets.at(-1);  // fall back to previous workout
   draft[ex] = {
-    weight: last?.weight ?? 50,
-    reps: last?.reps ?? 12
+    weight: ref?.weight ?? 50,
+    reps:   ref?.reps   ?? 12
   };
 }
 
