@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout Data Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg:        #0f1117;
+            --surface:   #181c27;
+            --border:    #2a2f3e;
+            --accent:    #4fc3f7;
+            --accent2:   #81c784;
+            --warn:      #ffb74d;
+            --danger:    #ef5350;
+            --text:      #e0e4ef;
+            --muted:     #6b7394;
+            --mono:      'IBM Plex Mono', monospace;
+            --sans:      'IBM Plex Sans', sans-serif;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--sans);
+            min-height: 100vh;
+            padding: 24px 16px 48px;
+        }
+
+        header {
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 16px;
+            margin-bottom: 28px;
+        }
+
+        header h1 {
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--accent);
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+
+        header p {
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-top: 4px;
+            font-family: var(--mono);
+        }
+
+        /* Data status grid */
+        .key-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 28px;
+        }
+
+        .key-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 12px 14px;
+        }
+
+        .key-card .label {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 6px;
+        }
+
+        .key-card .name {
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .key-card .stat {
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        .key-card .dot {
+            display: inline-block;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
+        .dot-ok   { background: var(--accent2); }
+        .dot-warn { background: var(--warn); }
+        .dot-none { background: var(--border); }
+
+        /* Backup age banner */
+        #backup-banner {
+            display: none;
+            background: var(--surface);
+            border: 1px solid var(--warn);
+            border-left: 4px solid var(--warn);
+            border-radius: 6px;
+            padding: 12px 14px;
+            margin-bottom: 20px;
+            font-size: 0.82rem;
+            color: var(--warn);
+            font-family: var(--mono);
+        }
+
+        /* Section blocks */
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .section h2 {
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .section p {
+            font-size: 0.83rem;
+            color: var(--muted);
+            margin-bottom: 14px;
+            line-height: 1.5;
+        }
+
+        /* Buttons */
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            font-weight: 600;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            letter-spacing: 0.03em;
+            transition: opacity 0.15s, transform 0.1s;
+        }
+
+        .btn:active { transform: scale(0.97); }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent);
+            border: 1px solid var(--accent);
+        }
+
+        .btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        /* File input */
+        .file-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .file-label {
+            display: inline-block;
+            padding: 9px 16px;
+            background: var(--border);
+            color: var(--text);
+            border-radius: 5px;
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .file-label:hover { background: #374060; }
+
+        #fileInput { display: none; }
+
+        #file-name {
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            color: var(--muted);
+        }
+
+        /* Status message */
+        #status {
+            display: none;
+            margin-top: 16px;
+            padding: 12px 14px;
+            border-radius: 6px;
+            font-family: var(--mono);
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .status-success {
+            background: #1a2e1a;
+            border: 1px solid var(--accent2);
+            color: var(--accent2);
+        }
+
+        .status-error {
+            background: #2e1a1a;
+            border: 1px solid var(--danger);
+            color: var(--danger);
+        }
+
+        .status-info {
+            background: #1a2233;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+        }
+
+        /* Last backup line */
+        #last-backup-line {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        #last-backup-line span {
+            color: var(--accent2);
+        }
+
+        footer {
+            margin-top: 40px;
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--border);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Workout Data Manager</h1>
+    <p>export / import / backup all workout stores</p>
+</header>
+
+<div id="backup-banner"></div>
+
+<div class="key-grid" id="key-grid">
+    <!-- Populated by JS -->
+</div>
+
+<div class="section">
+    <h2>Export</h2>
+    <p>Downloads all four workout stores as a single JSON bundle. Use this regularly as your safety net against browser storage wipes.</p>
+    <button class="btn btn-primary" onclick="exportAll()">Export All Data</button>
+    <div id="last-backup-line"></div>
+</div>
+
+<div class="section">
+    <h2>Import</h2>
+    <p>Restores from a previously exported bundle. Only keys present in the file are written; missing keys are skipped and reported.</p>
+    <div class="file-row">
+        <label class="file-label" for="fileInput">Choose File</label>
+        <input type="file" id="fileInput" accept=".json">
+        <span id="file-name">No file selected</span>
+    </div>
+    <br>
+    <button class="btn btn-secondary" onclick="importAll()">Import from File</button>
+</div>
+
+<div id="status"></div>
+
+<footer>data-manager.html -- all keys scoped to this origin</footer>
+
+<script>
+    const KEYS = [
+        { key: 'gymData',         label: 'gym.html',  short: 'Catch-all' },
+        { key: 'TuesdayGymData',  label: 'Tue.html',  short: 'Tuesday' },
+        { key: 'ThursdayGymData', label: 'Thu.html',  short: 'Thursday' },
+        { key: 'SundayGymData',   label: 'Sun.html',  short: 'Sunday' },
+    ];
+
+    const BACKUP_TS_KEY = 'dataManagerLastBackup';
+    const WARN_DAYS = 7;
+
+    // ---- Utilities ----
+
+    function sizeLabel(raw) {
+        if (!raw) return 'empty';
+        const bytes = new Blob([raw]).size;
+        if (bytes < 1024) return bytes + ' B';
+        return (bytes / 1024).toFixed(1) + ' KB';
+    }
+
+    function recordCount(raw) {
+        if (!raw) return null;
+        try {
+            const obj = JSON.parse(raw);
+            // Count top-level date keys (YYYY-MM-DD pattern)
+            const dates = Object.keys(obj).filter(k => /^\d{4}-\d{2}-\d{2}$/.test(k));
+            return dates.length > 0 ? dates.length + ' sessions' : null;
+        } catch { return null; }
+    }
+
+    function daysSince(ts) {
+        return Math.floor((Date.now() - ts) / 86400000);
+    }
+
+    // ---- Render key status grid ----
+
+    function renderGrid() {
+        const grid = document.getElementById('key-grid');
+        grid.innerHTML = '';
+        KEYS.forEach(({ key, label, short }) => {
+            const raw = localStorage.getItem(key);
+            const present = raw !== null && raw !== '{}' && raw !== '';
+            const dot = present ? 'dot-ok' : 'dot-none';
+            const dotLabel = present ? 'present' : 'empty';
+            const count = present ? recordCount(raw) : null;
+            const size = present ? sizeLabel(raw) : '--';
+
+            grid.innerHTML += `
+                <div class="key-card">
+                    <div class="label">${short}</div>
+                    <div class="name">${label}</div>
+                    <div class="stat">
+                        <span class="dot ${dot}"></span>${dotLabel}
+                    </div>
+                    <div class="stat" style="margin-top:4px; padding-left:13px;">
+                        ${count ? count + ' &middot; ' : ''}${size}
+                    </div>
+                </div>`;
+        });
+    }
+
+    // ---- Backup age banner ----
+
+    function renderBackupAge() {
+        const ts = localStorage.getItem(BACKUP_TS_KEY);
+        const line = document.getElementById('last-backup-line');
+        const banner = document.getElementById('backup-banner');
+
+        if (!ts) {
+            banner.style.display = 'block';
+            banner.textContent = 'No export on record for this browser. Export now to create your first backup.';
+            line.innerHTML = 'Last export: <span>never</span>';
+            return;
+        }
+
+        const days = daysSince(Number(ts));
+        const dateStr = new Date(Number(ts)).toLocaleDateString('en-US', {month:'short', day:'numeric', year:'numeric'});
+        line.innerHTML = `Last export: <span>${dateStr} (${days}d ago)</span>`;
+
+        if (days >= WARN_DAYS) {
+            banner.style.display = 'block';
+            banner.textContent = `Last export was ${days} day${days===1?'':'s'} ago. Consider exporting soon.`;
+        }
+    }
+
+    // ---- Export ----
+
+    function exportAll() {
+        try {
+            const bundle = {
+                exported: new Date().toISOString().split('T')[0],
+                exportedTs: Date.now(),
+            };
+
+            let anyData = false;
+            KEYS.forEach(({ key }) => {
+                const raw = localStorage.getItem(key);
+                if (raw && raw !== '{}' && raw !== '') {
+                    try {
+                        bundle[key] = JSON.parse(raw);
+                        anyData = true;
+                    } catch {
+                        bundle[key] = raw; // store as raw string if unparseable
+                        anyData = true;
+                    }
+                } else {
+                    bundle[key] = null;
+                }
+            });
+
+            if (!anyData) {
+                showStatus('No workout data found in any store. Nothing to export.', 'error');
+                return;
+            }
+
+            const json = JSON.stringify(bundle, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `workout-backup-${bundle.exported}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            // Record timestamp
+            localStorage.setItem(BACKUP_TS_KEY, String(Date.now()));
+
+            const summary = KEYS
+                .filter(({ key }) => bundle[key] !== null)
+                .map(({ label }) => label)
+                .join(', ');
+
+            showStatus(`Exported: ${summary}`, 'success');
+            renderBackupAge();
+            document.getElementById('backup-banner').style.display = 'none';
+
+        } catch (err) {
+            showStatus('Export failed: ' + err.message, 'error');
+        }
+    }
+
+    // ---- Import ----
+
+    document.getElementById('fileInput').addEventListener('change', function() {
+        const name = this.files[0] ? this.files[0].name : 'No file selected';
+        document.getElementById('file-name').textContent = name;
+    });
+
+    function importAll() {
+        const fileInput = document.getElementById('fileInput');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            showStatus('Select a file first.', 'error');
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const bundle = JSON.parse(e.target.result);
+                const restored = [];
+                const skipped = [];
+                const unrecognized = [];
+
+                const knownKeys = new Set(KEYS.map(k => k.key));
+
+                // Check for keys in the bundle beyond our known set and metadata
+                Object.keys(bundle).forEach(k => {
+                    if (!knownKeys.has(k) && k !== 'exported' && k !== 'exportedTs') {
+                        unrecognized.push(k);
+                    }
+                });
+
+                KEYS.forEach(({ key, label }) => {
+                    if (!(key in bundle)) {
+                        skipped.push(`${label} (not in file)`);
+                        return;
+                    }
+                    if (bundle[key] === null) {
+                        skipped.push(`${label} (was empty at export time)`);
+                        return;
+                    }
+                    const toStore = typeof bundle[key] === 'string'
+                        ? bundle[key]
+                        : JSON.stringify(bundle[key]);
+                    localStorage.setItem(key, toStore);
+                    restored.push(label);
+                });
+
+                let msg = '';
+                if (restored.length) msg += `Restored: ${restored.join(', ')}.\n`;
+                if (skipped.length)   msg += `Skipped: ${skipped.join(', ')}.\n`;
+                if (unrecognized.length) msg += `Unrecognized keys in file (ignored): ${unrecognized.join(', ')}.`;
+
+                const type = restored.length > 0 ? 'success' : 'info';
+                showStatus(msg.trim(), type);
+
+                fileInput.value = '';
+                document.getElementById('file-name').textContent = 'No file selected';
+                renderGrid();
+
+            } catch (err) {
+                showStatus('Import failed: invalid JSON -- ' + err.message, 'error');
+            }
+        };
+        reader.onerror = () => showStatus('Failed to read file.', 'error');
+        reader.readAsText(file);
+    }
+
+    // ---- Status display ----
+
+    function showStatus(msg, type) {
+        const el = document.getElementById('status');
+        el.style.display = 'block';
+        el.textContent = msg;
+        el.className = `status-${type}`;
+        // Scroll into view on mobile
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ---- Init ----
+    renderGrid();
+    renderBackupAge();
+</script>
+</body>
+</html>
