@@ -181,7 +181,7 @@ weight: 70% WW; rest: 60s; version: 26-04-26
 const EXERCISES = [
   {
     group: "Back",
-    variants: ["Cable Row (Machine)"],
+    variants: ["Back - Cable Row (Machine)"],
     default: 0
   },
   {
@@ -210,14 +210,16 @@ const EXERCISES = [
     variants: [
       "Shoulders - Face Pull (Cable)"
     ],
-    default: 0
+    default: 0,
+    weightStep: 2.5
   },
   {
     group: "Shoulders",
     variants: [
       "Shoulders - Lateral Raise (Cable)"
     ],
-    default: 0
+    default: 0,
+    weightStep: 2.5
   },
   {
     group: "Biceps",
@@ -398,7 +400,7 @@ function render() {
   const today = todayKey();
   data[today] ??= {};
   
-  document.getElementById("header").textContent = `Sunday (upper, light) - ${today}`;
+  document.getElementById("header").textContent = `Sunday split (upper, light) - ${today}`;
 
   const app = document.getElementById("app");
   app.innerHTML = "";
@@ -480,13 +482,15 @@ function render() {
 }
 
 function adjust(slotIndex, field, dir) {
-  const ex = EXERCISES[slotIndex].variants[selectedVariants[slotIndex]];
-  if (field === "weight") {
-    draft[ex].weight = Math.max(0, draft[ex].weight + dir * WEIGHT_STEP);
-  } else {
-    draft[ex].reps = Math.max(1, draft[ex].reps + dir);
-  }
-  render();
+     const exercise = EXERCISES[slotIndex];                        // ← was inline
+     const ex = exercise.variants[selectedVariants[slotIndex]];
+     if (field === "weight") {
+         const step = exercise.weightStep ?? WEIGHT_STEP;            // ← key line
+         draft[ex].weight = Math.max(0, draft[ex].weight + dir * step);
+      } else {
+         draft[ex].reps = Math.max(1, draft[ex].reps + dir);
+      }
+      render();
 }
 
 function addSet(slotIndex, button) {
