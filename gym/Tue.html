@@ -212,14 +212,16 @@ const EXERCISES = [
     variants: [
       "Shoulders - Face Pull (Cable)"
     ],
-    default: 0
+    default: 0,
+    weightStep: 2.5  // smaller increment
   },
   {
     group: "Shoulders",
     variants: [
       "Shoulders - Lateral Raise (Cable)"
     ],
-    default: 0
+    default: 0,
+    weightStep: 2.5  // smaller increment
   },
   {
     group: "Triceps",
@@ -497,13 +499,15 @@ function render() {
 }
 
 function adjust(slotIndex, field, dir) {
-  const ex = EXERCISES[slotIndex].variants[selectedVariants[slotIndex]];
-  if (field === "weight") {
-    draft[ex].weight = Math.max(0, draft[ex].weight + dir * WEIGHT_STEP);
-  } else {
-    draft[ex].reps = Math.max(1, draft[ex].reps + dir);
-  }
-  render();
+     const exercise = EXERCISES[slotIndex];                        // ← was inline
+     const ex = exercise.variants[selectedVariants[slotIndex]];
+     if (field === "weight") {
+         const step = exercise.weightStep ?? WEIGHT_STEP;            // ← key line
+         draft[ex].weight = Math.max(0, draft[ex].weight + dir * step);
+      } else {
+         draft[ex].reps = Math.max(1, draft[ex].reps + dir);
+      }
+      render();
 }
 
 function addSet(slotIndex, button) {
