@@ -220,7 +220,8 @@ const EXERCISES = [
     variants: [
       "Core - Suitcase Carry (DB, sec per arm)",
     ],
-    default: 0
+    default: 0,
+    repUnits: 'secs'
   }
 ];
 
@@ -464,7 +465,7 @@ function render() {
 
       <div class="row">
         <button onclick="adjust(${slotIndex},'reps',-1)">−</button>
-        <div class="value">${draft[ex].reps} reps</div>
+        <div class="value">${draft[ex].reps} ${exercise.repUnits ?? "reps"}</div>
         <button onclick="adjust(${slotIndex},'reps',1)">+</button>
       </div>
 
